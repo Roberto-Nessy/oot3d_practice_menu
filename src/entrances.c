@@ -30,9 +30,8 @@ static const char* TimeNames[] = {
 };
 
 static const char* AgeNames[] = {
-    "Adult  ",
-    "Child  ",
-    "Current",
+    "Adult",
+    "Child",
 };
 
 void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chosenTimeIndex){
@@ -57,7 +56,7 @@ void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chose
 
 void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSelection){
     s32 selected = 3, page = 0, pagePrev = 0;
-    s32 chosenAge = 2;
+    s32 chosenAge = gSaveContext.linkAge;
     u32 chosenTime = 0;
     u16 chosenEntranceIndex = 0x0000;
     u32 curColor = COLOR_WHITE;
@@ -165,7 +164,7 @@ void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSe
                 }
                 else if(selected == Entrance_Select_Menu_Age){
                     chosenAge++;
-                    chosenAge %= 3;
+                    chosenAge %= 2;
                 }
                 else if(selected == Entrance_Select_Menu_Time){
                     chosenTime++;
@@ -175,13 +174,8 @@ void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSe
                     }
                 }
                 else if(selected >= Entrance_Select_Menu_Etcs){
-                    s32 age;
-                    switch(chosenAge) {
-                        case 2: age = gGlobalContext->linkAgeOnLoad; break;
-                        default: age = chosenAge; break;
-                    }
                     u16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
-                    EntranceWarp(entranceIndex, age, cutsceneIndex, chosenTime);
+                    EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime);
                     menuOpen = 0;
                 }
             }
