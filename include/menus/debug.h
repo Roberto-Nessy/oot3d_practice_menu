@@ -15,6 +15,7 @@ extern void MemoryEditor_EditAddress();
 extern void MemoryEditor_EditValue();
 extern bool MemoryEditor_ConfirmPermissionOverride();
 void MemoryEditor_GoToPreset(void);
+void MemoryEditor_FollowPointer(void);
 
 typedef enum {
     FLAGS_SWITCH,

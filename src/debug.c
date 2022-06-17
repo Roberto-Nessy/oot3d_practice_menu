@@ -620,6 +620,26 @@ static void checkValidMemory(void) {
     isValidMemory = is_valid_memory_read(&address_start_info) && is_valid_memory_read(&address_end_info);
 }
 
+static u32 addrHistory[10] = {0};
+static s8 addrHistoryTop = -1;
+
+void pushHistory(u32 addr) {
+    if (addrHistoryTop >= 9) {
+        for (s32 i = 0; i < 10; i++) {
+            addrHistory[i] = addrHistory[i+1];
+        }
+        addrHistory[addrHistoryTop] = addr;
+    }
+    else
+        addrHistory[++addrHistoryTop] = addr;
+}
+u32 popHistory(void) {
+    if (addrHistoryTop < 0)
+        return memoryEditorAddress;
+
+    return addrHistory[addrHistoryTop--];
+}
+
 void Debug_MemoryEditor(void) {
 
     Draw_Lock();
@@ -645,9 +665,12 @@ void Debug_MemoryEditor(void) {
         Draw_DrawCharacter(60, 30 + SPACING_Y, WHITE_OR_BLUE_AT(1,1), 30);
         // Go To Preset button
         Draw_DrawString(90, 30, WHITE_OR_BLUE_AT(0,1), "Go To Preset");
+        // R button info
+        Draw_DrawString(200, 15, COLOR_GRAY, "R+A : Follow Pointer");
+        Draw_DrawString(200, 15 + SPACING_Y, COLOR_GRAY, "R+B : Go Back");
         // Byte index markers
         for (s32 j = 0; j < 8; j++) {
-            Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY, "%d", j);
+            Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY, "%X", (j + memoryEditorAddress) % 16);
         }
         // Memory addresses and values
         for (s32 i = 0; i < 16; i++) {
@@ -671,7 +694,16 @@ void Debug_MemoryEditor(void) {
         u32 pressed = Input_WaitWithTimeout(1000);
 
         if (pressed & BUTTON_B){
-            break;
+            if (ADDITIONAL_FLAG_BUTTON) {
+                memoryEditorAddress = popHistory();
+                checkValidMemory();
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_FlushFramebuffer();
+                Draw_Unlock();
+            }
+            else
+                break;
         }
         else if (pressed & BUTTON_A){
             if (selectedRow == 0 && selectedColumn == 0) {
@@ -684,6 +716,9 @@ void Debug_MemoryEditor(void) {
                 u8 amount = ADDITIONAL_FLAG_BUTTON ? 0x80 : 8;
                 memoryEditorAddress += (selectedColumn == 0 ? amount : -amount);
                 checkValidMemory();
+            }
+            else if (ADDITIONAL_FLAG_BUTTON) {
+                MemoryEditor_FollowPointer();
             }
             else {
                 MemoryEditor_EditValue();
@@ -734,6 +769,7 @@ void Debug_MemoryEditor(void) {
 
 void MemoryEditor_EditAddress(void) {
     static s8 digitIndex = 0;
+    u32 oldAddress = memoryEditorAddress;
 
     do
     {
@@ -766,6 +802,9 @@ void MemoryEditor_EditAddress(void) {
             digitIndex = 7;
 
     } while(menuOpen);
+
+    if (memoryEditorAddress != oldAddress)
+        pushHistory(oldAddress);
 
     checkValidMemory();
 
@@ -905,7 +944,8 @@ void MemoryEditor_GoToPreset(void) {
             break;
         }
         else if (pressed & BUTTON_A){
-            memoryEditorAddress = (int)(addresses[selected]);
+            pushHistory(memoryEditorAddress);
+            memoryEditorAddress = (u32)(addresses[selected]);
             break;
         }
         else {
@@ -925,6 +965,18 @@ void MemoryEditor_GoToPreset(void) {
 
     } while(menuOpen);
 
+    checkValidMemory();
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+}
+
+void MemoryEditor_FollowPointer(void) {
+    pushHistory(memoryEditorAddress);
+    u32 byteAddress = (memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
+    memoryEditorAddress = *(u32*)(byteAddress - byteAddress % 4);
     checkValidMemory();
 
     Draw_Lock();
