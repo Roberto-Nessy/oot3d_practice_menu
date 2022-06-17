@@ -349,7 +349,9 @@ typedef struct GlobalContext {
     // /* 0x0000 */ GameState state;
     /* 0x0000 */ char                  unk_0[0x0104];
     /* 0x0104 */ s16                   sceneNum;
-    /* 0x0106 */ char                  unk_106[0x0012];
+    /* 0x0106 */ char                  unk_106[0x000A];
+    /* 0x0110 */ void*                 sceneSegment;
+    /* 0x0114 */ char                  unk_114[0x0004];
     /* 0x0118 */ SubGlobalContext_118  sub118;
     /* 0x017C */ char                  unk_17C[0x01E8];
     /* 0x0364 */ Camera                mainCamera;
@@ -432,6 +434,7 @@ extern const char DungeonNames[][25];
 #define gObjectTable ((ObjectFile*)0x53CCF4)
 #define gEntranceTable ((EntranceInfo*)0x543BB8)
 #define gItemUsabilityTable ((u8*)0x506C58)
+#define gGearUsabilityTable ((u32*)0x4D47C8)
 #define gDungeonSceneTable ((Scene*)0x4DC400)
 #define gMQDungeonSceneTable ((Scene*)0x4DCBA8)
 #define gSceneTable ((Scene*)0x545484)

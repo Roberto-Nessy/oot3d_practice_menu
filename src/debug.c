@@ -639,10 +639,12 @@ void Debug_MemoryEditor(void) {
         // Title
         Draw_DrawString(10, 10, COLOR_TITLE, "Memory Editor");
         // Address selection
-        Draw_DrawFormattedString(30, 30, selectedRow == 0 ? COLOR_GREEN : COLOR_WHITE, "%08X", memoryEditorAddress);
+        Draw_DrawFormattedString(30, 30, (selectedRow == 0 && selectedColumn == 0) ? COLOR_GREEN : COLOR_WHITE, "%08X", memoryEditorAddress);
         // Scroll buttons
         Draw_DrawCharacter(40, 30 + SPACING_Y, WHITE_OR_BLUE_AT(1,0), 31);
         Draw_DrawCharacter(60, 30 + SPACING_Y, WHITE_OR_BLUE_AT(1,1), 30);
+        // Go To Preset button
+        Draw_DrawString(90, 30, WHITE_OR_BLUE_AT(0,1), "Go To Preset");
         // Byte index markers
         for (s32 j = 0; j < 8; j++) {
             Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY, "%d", j);
@@ -672,8 +674,11 @@ void Debug_MemoryEditor(void) {
             break;
         }
         else if (pressed & BUTTON_A){
-            if (selectedRow == 0) {
+            if (selectedRow == 0 && selectedColumn == 0) {
                 MemoryEditor_EditAddress();
+            }
+            else if (selectedRow == 0 && selectedColumn == 1) {
+                MemoryEditor_GoToPreset();
             }
             else if (selectedRow == 1) {
                 u8 amount = ADDITIONAL_FLAG_BUTTON ? 0x80 : 8;
@@ -687,6 +692,7 @@ void Debug_MemoryEditor(void) {
         else {
             if (pressed & BUTTON_UP){
                 selectedRow--;
+                if (selectedRow == 0) selectedColumn = 0;
                 if (selectedRow == 1) selectedColumn = 1;
             }
             if (pressed & BUTTON_DOWN){
@@ -699,20 +705,27 @@ void Debug_MemoryEditor(void) {
             if (pressed & BUTTON_LEFT){
                 selectedColumn--;
             }
+            if (pressed & BUTTON_L1) {
+                selectedRow = selectedColumn = 0;
+            }
         }
 
         if(selectedRow > 17 || (selectedRow > 1 && !isValidMemory))
-            selectedRow = 0;
-        else if(selectedRow < 0)
+            selectedRow = selectedColumn = 0;
+        else if(selectedRow < 0) {
             selectedRow = isValidMemory ? 17 : 1;
+            selectedColumn = 0;
+        }
 
-        if(selectedColumn > 7 || selectedRow == 0 || (selectedRow == 1 && selectedColumn > 1))
+        if(selectedColumn > 7 || (selectedRow <= 1 && selectedColumn > 1))
             selectedColumn = 0;
         else if(selectedColumn < 0) {
             switch (selectedRow) {
-                case 0: selectedColumn = 0; break;
-                case 1: selectedColumn = 1; break;
-                default: selectedColumn = 7; break;
+                case 0:
+                case 1:
+                    selectedColumn = 1; break;
+                default:
+                    selectedColumn = 7; break;
             }
         }
 
@@ -838,4 +851,84 @@ bool MemoryEditor_ConfirmPermissionOverride(void) {
     Draw_FlushFramebuffer();
     Draw_Unlock();
     return ret;
+}
+
+void MemoryEditor_GoToPreset(void) {
+
+    static s32 selected = 0;
+    static const char* const names[] = {
+        "Save Context",
+        "Static Context / GameInfo",
+        "Global Context / PlayState",
+        "Current Scene Segment",
+        "Gear Usability Table",
+        "Item Usability Table",
+        "Actor Overlay Table",
+        "Entrance Table",
+        "Scene Table",
+    };
+    const void* const addresses[] = {
+        &gSaveContext,
+        &gStaticContext,
+        gGlobalContext,
+        gGlobalContext->sceneSegment,
+        gGearUsabilityTable,
+        gItemUsabilityTable,
+        gActorOverlayTable,
+        gEntranceTable,
+        gSceneTable,
+    };
+    const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    do
+    {
+        Draw_Lock();
+        // Title
+        Draw_DrawString(10, 10, COLOR_TITLE, "Preset Memory Addresses");
+        // Address presets
+        for (s32 j = 0; j < addressesCount; j++) {
+            Draw_DrawFormattedString(30, 30 + j * SPACING_Y, (selected == j) ? COLOR_TITLE : COLOR_WHITE, "%08X : %s", addresses[j], names[j]);
+            Draw_DrawCharacter(10, 30 + j * SPACING_Y, COLOR_TITLE, (selected == j) ? '>' : ' ');
+        }
+
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 pressed = Input_WaitWithTimeout(1000);
+
+        if (pressed & BUTTON_B){
+            break;
+        }
+        else if (pressed & BUTTON_A){
+            memoryEditorAddress = (int)(addresses[selected]);
+            break;
+        }
+        else {
+            if (pressed & BUTTON_UP){
+                selected--;
+            }
+            if (pressed & BUTTON_DOWN){
+                selected++;
+            }
+        }
+
+        if (selected > addressesCount - 1)
+            selected = 0;
+
+        if (selected < 0)
+            selected = addressesCount - 1;
+
+    } while(menuOpen);
+
+    checkValidMemory();
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
 }
