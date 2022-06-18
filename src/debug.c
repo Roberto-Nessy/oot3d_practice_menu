@@ -140,6 +140,7 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
             PLAYER->actor.home.rot = actor->world.rot;
         }
         else if(pressed & BUTTON_Y){
+            pushHistory(memoryEditorAddress);
             memoryEditorAddress = (int)actor;
             Debug_MemoryEditor();
             Draw_Lock();
@@ -345,6 +346,7 @@ void DebugActors_ShowActors(void) {
             }
         }
         else if(pressed & BUTTON_Y){
+            pushHistory(memoryEditorAddress);
             memoryEditorAddress = (int)actorList[selected].instance;
             Debug_MemoryEditor();
             Draw_Lock();
@@ -978,7 +980,7 @@ void MemoryEditor_FollowPointer(void) {
     pushHistory(memoryEditorAddress);
     u32 byteAddress = (memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
     u32 pointerAddress = byteAddress - byteAddress % 4;
-    if (pointerAddress < (u32)gGlobalContext->sceneSegment + 0x1000) // Manage segment addresses for the scene file headers
+    if (pointerAddress >= (u32)gGlobalContext->sceneSegment && pointerAddress < (u32)gGlobalContext->sceneSegment + 0x1000) // Manage segment addresses for the scene file headers
         memoryEditorAddress = (u32)gGlobalContext->sceneSegment + *(u32*)(pointerAddress);
     else
         memoryEditorAddress = *(u32*)pointerAddress;

@@ -14,6 +14,7 @@ extern void Debug_MemoryEditor();
 extern void MemoryEditor_EditAddress();
 extern void MemoryEditor_EditValue();
 extern bool MemoryEditor_ConfirmPermissionOverride();
+extern void pushHistory(u32 addr);
 void MemoryEditor_GoToPreset(void);
 void MemoryEditor_FollowPointer(void);
 
