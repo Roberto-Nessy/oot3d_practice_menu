@@ -670,7 +670,8 @@ void Debug_MemoryEditor(void) {
         Draw_DrawString(200, 15 + SPACING_Y, COLOR_GRAY, "R+B : Go Back");
         // Byte index markers
         for (s32 j = 0; j < 8; j++) {
-            Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY, "%X", (j + memoryEditorAddress) % 16);
+            s32 digit = (j + memoryEditorAddress + ((selectedRow > 1 && selectedRow % 2 == 0) ? 0 : 8)) % 16;
+            Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY, "%X", digit);
         }
         // Memory addresses and values
         for (s32 i = 0; i < 16; i++) {
@@ -976,7 +977,12 @@ void MemoryEditor_GoToPreset(void) {
 void MemoryEditor_FollowPointer(void) {
     pushHistory(memoryEditorAddress);
     u32 byteAddress = (memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
-    memoryEditorAddress = *(u32*)(byteAddress - byteAddress % 4);
+    u32 pointerAddress = byteAddress - byteAddress % 4;
+    if (pointerAddress < (u32)gGlobalContext->sceneSegment + 0x1000) // Manage segment addresses for the scene file headers
+        memoryEditorAddress = (u32)gGlobalContext->sceneSegment + *(u32*)(pointerAddress);
+    else
+        memoryEditorAddress = *(u32*)pointerAddress;
+
     checkValidMemory();
 
     Draw_Lock();
