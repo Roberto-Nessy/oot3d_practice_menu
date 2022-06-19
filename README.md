@@ -24,20 +24,18 @@ Also, be sure to use this version of Luma3DS, which has critical game patching f
 * I'm a noob and everything is hard.
 
 # How to Use:
+* Find the patch files inside the "Patch Files" folder in this repository. They're divided by regional version of OoT3D (USA/EUR/JP) and by platform (3DS/Citra), so choose the correct ones.
 ### 3DS
 * Install a recent build of Luma3DS, or use the one linked above. If you already have Luma3DS, you can upgrade by simply replacing "boot.firm" at the root of your SD card.
-* USA: Place "code.ips" and "exheader.bin" in the folder /luma/titles/0004000000033500 . You may new to create this folder.
-* JP: Place "code_j.ips" and "exheader.bin" in the folder /luma/titles/0004000000033400 . Rename "code_j.ips" to "code.ips".
-* EUR: Place "code_eur.ips" and "exheader.bin" in the folder /luma/titles/0004000000033600 . Rename "code_eur.ips" to "code.ips".
+* Place the patch files ("code.ips" and "exheader.bin") in the following folder (you may need to create the folder):
+* USA: /luma/titles/0004000000033500
+* JP:  /luma/titles/0004000000033400
+* EUR: /luma/titles/0004000000033600
 * Hold Select while powering on the console to launch the Luma3DS menu. Turn on "Enable game patching". You should only need to do this once, unless if you disable game patching in the future.
 * It should work now! If not, you likely need to use a different version of Luma3DS (try the one linked above).
 
 ### Citra Emulator
-* Right-click on OoT3D from the game list and select "Open Mods Location". Place "exheader_citra.bin" inside the folder, alongside the patch file corresponding to your version of the game:
-* USA: "code_citra_us.ips"
-* JP: "code_citra_jp.ips"
-* EUR: "code_citra_eur.ips"
-* Rename the two files you moved to "exheader.bin" and "code.ips" respectively
+* Right-click on OoT3D from the game list and select "Open Mods Location". Place the patch files ("code.ips" and "exheader.bin") there.
 
 Note: the patch files for Citra are almost the same as the ones for 3DS, so if you have problems you could try using those instead.
 
