@@ -26,7 +26,8 @@ typedef enum {
     /* 0X0E*/ CHEATS_USABLE_ITEMS,
     /* 0X0F*/ CHEATS_ISG,
     /* 0X10*/ CHEATS_QUICK_TEXT,
-    /* 0X11*/ NUMBER_OF_CHEATS,
+    /* 0X11*/ CHEATS_SKIP_SONGS_PLAYBACK,
+    /* 0X12*/ NUMBER_OF_CHEATS,
 } CheatNames;
 
 extern u8  cheats[NUMBER_OF_CHEATS];
