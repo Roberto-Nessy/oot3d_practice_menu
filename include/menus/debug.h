@@ -17,6 +17,9 @@ extern bool MemoryEditor_ConfirmPermissionOverride();
 extern void pushHistory(u32 addr);
 void MemoryEditor_GoToPreset(void);
 void MemoryEditor_FollowPointer(void);
+void MemoryEditor_TableSettings(void);
+void MemoryEditor_JumpToTableElementFromIndex(void);
+void MemoryEditor_JumpToTableElement(void);
 
 typedef enum {
     FLAGS_SWITCH,
@@ -43,3 +46,17 @@ typedef enum {
     PLAYERSTATES_PART4,
     PLAYERSTATES_HELD_ITEM,
 } PlayerStatesOptions;
+
+typedef enum {
+    TABLEINDEX_U8,
+    TABLEINDEX_S8,
+    TABLEINDEX_U16,
+    TABLEINDEX_S16,
+} TableIndexType;
+
+static const char* const TableIndexTypeNames[] = {
+    "U8 ",
+    "S8 ",
+    "U16",
+    "S16",
+};

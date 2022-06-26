@@ -23,6 +23,12 @@ u32 memoryEditorAddress = (int)&gSaveContext;
 static s32 selectedRow = 0;
 static s32 selectedColumn = 0;
 static u8  isValidMemory = 0;
+static u32 storedTableStart = 0;
+static u16 tableElementSize = 0;
+static u8  tableIndexType = TABLEINDEX_U8;
+static s32 tableIndex = 0;
+static char tableIndexSign;
+static u16 tableIndexAbs;
 
 typedef struct {
     Actor* instance;
@@ -667,9 +673,14 @@ void Debug_MemoryEditor(void) {
         Draw_DrawCharacter(60, 30 + SPACING_Y, WHITE_OR_BLUE_AT(1,1), 30);
         // Go To Preset button
         Draw_DrawString(90, 30, WHITE_OR_BLUE_AT(0,1), "Go To Preset");
-        // R button info
-        Draw_DrawString(200, 15, COLOR_GRAY, "R+A : Follow Pointer");
-        Draw_DrawString(200, 15 + SPACING_Y, COLOR_GRAY, "R+B : Go Back");
+        // Info
+        Draw_DrawString(180, 15, COLOR_GRAY, "Start : Info & Settings");
+        if (tableElementSize != 0) {
+            tableIndexSign = tableIndex < 0 ? '-' : ' ';
+            tableIndexAbs = tableIndex < 0 ? -tableIndex : tableIndex;
+            Draw_DrawFormattedString(240, 30 + SPACING_Y * 2, COLOR_GRAY, "Table Start\n  %08X\nElement Size\n  %04X\nIndex Type\n  %s\nIndex\n %c%04X",
+                                        storedTableStart, tableElementSize, TableIndexTypeNames[tableIndexType], tableIndexSign, tableIndexAbs);
+        }
         // Byte index markers
         for (s32 j = 0; j < 8; j++) {
             s32 digit = (j + memoryEditorAddress + ((selectedRow > 1 && selectedRow % 2 == 0) ? 0 : 8)) % 16;
@@ -726,6 +737,17 @@ void Debug_MemoryEditor(void) {
             else {
                 MemoryEditor_EditValue();
             }
+        }
+        else if (pressed & BUTTON_Y && ADDITIONAL_FLAG_BUTTON) {
+            if (selectedRow == 0 && selectedColumn == 0) {
+                storedTableStart = memoryEditorAddress;
+            }
+            else if (selectedRow > 1 && tableElementSize != 0) {
+                MemoryEditor_JumpToTableElement();
+            }
+        }
+        else if (pressed & BUTTON_START) {
+            MemoryEditor_TableSettings();
         }
         else {
             if (pressed & BUTTON_UP){
@@ -991,4 +1013,148 @@ void MemoryEditor_FollowPointer(void) {
     Draw_ClearFramebuffer();
     Draw_FlushFramebuffer();
     Draw_Unlock();
+}
+
+void MemoryEditor_TableSettings(void) {
+    static s32 selected = 0;
+    u8 chosen = 0;
+    u32 curColor = COLOR_GREEN;
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    do
+    {
+        curColor = chosen ? COLOR_RED : COLOR_GREEN;
+        tableIndexSign = tableIndex < 0 ? '-' : ' ';
+        tableIndexAbs = tableIndex < 0 ? -tableIndex : tableIndex;
+
+        Draw_Lock();
+        // Title
+        Draw_DrawString(10, 10, COLOR_TITLE, "Memory Editor Info & Settings");
+        // Info
+        Draw_DrawString(30, 30, COLOR_WHITE, "R+A : Follow Pointer\n"
+                                             "R+B : Go Back\n"
+                                             "R+Y on editor address: Store as Table Start\n"
+                                             "R+Y on memory value: Jump to Table Element\n"
+                                             "R+Y from this menu: Jump to chosen Index");
+        // Table Settings
+        Draw_DrawFormattedString(30, 120, COLOR_GRAY, "Stored Table Start : %08X", storedTableStart);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? curColor : COLOR_WHITE, "Table Element Size : %04X", tableElementSize);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? curColor : COLOR_WHITE, "Table Index Type : %s", TableIndexTypeNames[tableIndexType]);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? curColor : COLOR_WHITE, "Table Index : %c%04X", tableIndexSign, tableIndexAbs);
+
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 pressed = Input_WaitWithTimeout(1000);
+
+        if (pressed & BUTTON_B) {
+            if (chosen)
+                chosen = 0;
+            else
+                break;
+        }
+        else if (pressed & BUTTON_A) {
+            if (selected == 1) {
+                tableIndexType++;
+            }
+            else
+                chosen = 1 - chosen;
+
+            if (selected == 2)
+                tableIndexType = TABLEINDEX_U16;
+        }
+        else if (pressed & BUTTON_Y && ADDITIONAL_FLAG_BUTTON) {
+            MemoryEditor_JumpToTableElementFromIndex();
+            break;
+        }
+        else if (chosen && selected == 0) {
+            if (pressed & BUTTON_UP){
+                tableElementSize += pressed & BUTTON_X ? 0x100 : 0x1;
+            }
+            if (pressed & BUTTON_DOWN){
+                tableElementSize -= pressed & BUTTON_X ? 0x100 : 0x1;
+            }
+            if (pressed & BUTTON_RIGHT){
+                tableElementSize += pressed & BUTTON_X ? 0x1000 : 0x10;
+            }
+            if (pressed & BUTTON_LEFT){
+                tableElementSize -= pressed & BUTTON_X ? 0x1000 : 0x10;
+            }
+        }
+        else if (chosen && selected == 2) {
+            if (pressed & BUTTON_UP){
+                tableIndex += pressed & BUTTON_X ? 0x100 : 0x1;
+            }
+            if (pressed & BUTTON_DOWN){
+                tableIndex -= pressed & BUTTON_X ? 0x100 : 0x1;
+            }
+            if (pressed & BUTTON_RIGHT){
+                tableIndex += pressed & BUTTON_X ? 0x1000 : 0x10;
+            }
+            if (pressed & BUTTON_LEFT){
+                tableIndex -= pressed & BUTTON_X ? 0x1000 : 0x10;
+            }
+        }
+        else {
+            if (pressed & BUTTON_DOWN){
+                selected++;
+                if (selected > 2)
+                    selected = 0;
+            }
+            if (pressed & BUTTON_UP){
+                selected--;
+                if (selected < 0)
+                    selected = 2;
+            }
+        }
+
+        if (tableIndex > 0xFFFF)
+            tableIndex -= 0x10000;
+        else if (tableIndex < 0)
+            tableIndex += 0x10000;
+
+        if (tableIndexType > 3)
+            tableIndexType = 0;
+
+    } while(menuOpen);
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+}
+
+void MemoryEditor_JumpToTableElementFromIndex(void) {
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    pushHistory(memoryEditorAddress);
+    memoryEditorAddress = storedTableStart + tableIndex * tableElementSize;
+    checkValidMemory();
+}
+
+void MemoryEditor_JumpToTableElement(void) {
+    void* byteAddress = (void*)(memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
+    switch (tableIndexType) {
+        case TABLEINDEX_U8:
+            tableIndex = (*(u8*)byteAddress);
+            break;
+        case TABLEINDEX_S8:
+            tableIndex = (*(s8*)byteAddress);
+            break;
+        case TABLEINDEX_U16:
+            tableIndex = (*(u16*)(byteAddress - (u32)byteAddress % 2));
+            break;
+        case TABLEINDEX_S16:
+            tableIndex = (*(s16*)(byteAddress - (u32)byteAddress % 2));
+            break;
+    }
+
+    MemoryEditor_JumpToTableElementFromIndex();
 }
