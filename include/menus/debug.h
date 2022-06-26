@@ -24,8 +24,8 @@ void MemoryEditor_JumpToTableElement(void);
 typedef enum {
     FLAGS_SWITCH,
     FLAGS_TEMP_SWITCH,
-    FLAGS_ROOMS,
-    FLAGS_FLOORS,
+    FLAGS_UNK1,
+    FLAGS_UNK2,
     FLAGS_CHEST,
     FLAGS_CLEAR,
     FLAGS_TEMP_CLEAR,

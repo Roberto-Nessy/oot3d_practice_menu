@@ -481,6 +481,7 @@ void Debug_FlagsEditor(void) {
     static s32 row = 0;
     static s32 column = 0;
     static s32 group = 10;
+    static s32 groupToSelect = 10;
     static u16* flags = (u16*)&gSaveContext.eventChkInf;
 
     static const u8 RowAmounts[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 14, 4, 16, 14, 4};
@@ -536,24 +537,14 @@ void Debug_FlagsEditor(void) {
                 *(flags + row - 1) ^= 1 << column;
             }
             else {
-                group += (column == 0 ? -1 : 1);
-                if(group > 14) group = 0;
-                else if(group < 0) group = 14;
-
-                switch (group) {
-                    case FLAGS_GOLD_SKULLTULAS  : flags = (u16*)&gSaveContext.gsFlags; break;
-                    case FLAGS_EVENT_CHK_INF    : flags = (u16*)&gSaveContext.eventChkInf; break;
-                    case FLAGS_ITEM_GET_INF     : flags = (u16*)&gSaveContext.itemGetInf; break;
-                    case FLAGS_INF_TABLE_1      : flags = (u16*)&gSaveContext.infTable; break;
-                    case FLAGS_INF_TABLE_2      : flags = ((u16*)&gSaveContext.infTable) + 16; break;
-                    case FLAGS_EVENT_INF        : flags = (u16*)&gSaveContext.eventInf; break;
-                    default : flags = ((u16*)&(gGlobalContext->actorCtx.flags.swch)) + group * 2; break;
-                }
-
-                Draw_Lock();
-                Draw_ClearFramebuffer();
-                Draw_Unlock();
+                groupToSelect = group + (column == 0 ? -1 : 1);
             }
+        }
+        else if (pressed & BUTTON_R1) {
+            groupToSelect = group + 1;
+        }
+        else if (pressed & BUTTON_L1) {
+            groupToSelect = group - 1;
         }
         else{
             if (pressed & BUTTON_UP){
@@ -570,6 +561,30 @@ void Debug_FlagsEditor(void) {
             if (pressed & BUTTON_LEFT){
                 column--;
             }
+        }
+
+        if (groupToSelect != group) {
+            group = groupToSelect;
+            if (group > 14) group = 0;
+            else if (group < 0) group = 14;
+            else if (group == FLAGS_UNK1) group = FLAGS_CHEST;
+            else if (group == FLAGS_UNK2) group = FLAGS_TEMP_SWITCH;
+
+            groupToSelect = group;
+
+            switch (group) {
+                case FLAGS_GOLD_SKULLTULAS  : flags = (u16*)&gSaveContext.gsFlags; break;
+                case FLAGS_EVENT_CHK_INF    : flags = (u16*)&gSaveContext.eventChkInf; break;
+                case FLAGS_ITEM_GET_INF     : flags = (u16*)&gSaveContext.itemGetInf; break;
+                case FLAGS_INF_TABLE_1      : flags = (u16*)&gSaveContext.infTable; break;
+                case FLAGS_INF_TABLE_2      : flags = ((u16*)&gSaveContext.infTable) + 16; break;
+                case FLAGS_EVENT_INF        : flags = (u16*)&gSaveContext.eventInf; break;
+                default : flags = ((u16*)&(gGlobalContext->actorCtx.flags.swch)) + group * 2; break;
+            }
+
+            Draw_Lock();
+            Draw_ClearFramebuffer();
+            Draw_Unlock();
         }
 
         if(row > RowAmounts[group])
