@@ -54,11 +54,13 @@ void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chose
     }
 }
 
-void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSelection){
-    s32 selected = 3, page = 0, pagePrev = 0;
+void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelection){
+    s32 selected = entrances->initialCursorPos;
+    s32 page = selected / (ENTRANCE_MENU_MAX_SHOW + Entrance_Select_Menu_Etcs);
+    s32 pagePrev = page;
     s32 chosenAge = gSaveContext.linkAge;
     u32 chosenTime = 0;
-    u16 chosenEntranceIndex = 0x0000;
+    static u16 chosenEntranceIndex = 0x0000;
     u32 curColor = COLOR_WHITE;
     s32 cutsceneIndex = -1;
     u32 chosen = 0;
@@ -151,6 +153,9 @@ void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSe
                     }
                 }
             }
+            else if (ADDITIONAL_FLAG_BUTTON && selected == Entrance_Select_Menu_Etcs) {
+                chosenEntranceIndex = 0;
+            }
         } else { // not chosen
             if(pressed & BUTTON_B) // close entrances menu
             {
@@ -195,8 +200,11 @@ void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSe
         else if(selected > (manualSelection ? Entrance_Select_Menu_Go : (Entrance_Select_Menu_Etcs + entrances->nbItems - 1))) {
             selected = Entrance_Select_Menu_Age;
         }
+
+        entrances->initialCursorPos = selected >= 3 ? selected : 3;
+
         pagePrev = page;
-        page = selected >= ENTRANCE_MENU_MAX_SHOW + Entrance_Select_Menu_Etcs ? 1 : 0;
+        page = selected / (ENTRANCE_MENU_MAX_SHOW + Entrance_Select_Menu_Etcs);
 
         if(ADDITIONAL_FLAG_BUTTON) {
             Draw_DrawFormattedStringTop(60, 190, COLOR_WHITE, "Current Entrance: %04X", (u16)gSaveContext.entranceIndex);
@@ -218,8 +226,10 @@ void EntranceSelectMenuShow(const EntrancesByScene* entrances, const u8 manualSe
     } while(menuOpen);
 }
 
-void WarpsSceneMenuShow(const WarpsSceneMenu* menu){
-    s32 selected = 0, page = 0, pagePrev = 0;
+void WarpsSceneMenuShow(WarpsSceneMenu* menu){
+    s32 selected = menu->initialCursorPos;
+    s32 page = selected / SCENE_MENU_MAX_SHOW;
+    s32 pagePrev = page;
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -285,21 +295,25 @@ void WarpsSceneMenuShow(const WarpsSceneMenu* menu){
             selected = menu->nbItems - 1;
         else if(selected >= menu->nbItems) selected = 0;
 
+        menu->initialCursorPos = selected;
+
         pagePrev = page;
         page = selected / SCENE_MENU_MAX_SHOW;
     } while(menuOpen);
 }
 
-const EntrancesByScene Entrances_Empty = {
+EntrancesByScene Entrances_Empty = {
     "Manually Enter Entrance Index",
     .nbItems = 0,
+    .initialCursorPos = 3,
     {
     }
 };
 
-const EntrancesByScene Entrances_BackAlley = {
+EntrancesByScene Entrances_BackAlley = {
     "Back Alley",
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x00AD, "From Market (Right Side)"},
         {0x029A, "From Market (Left Side)"},
@@ -309,128 +323,143 @@ const EntrancesByScene Entrances_BackAlley = {
     }
 };
 
-const EntrancesByScene Entrances_BackAlleyHouseDogLady = {
+EntrancesByScene Entrances_BackAlleyHouseDogLady = {
     "Richard's House",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0398, "From Back Alley"},
     }
 };
 
-const EntrancesByScene Entrances_BackAlleyHouseManInGreen = {
+EntrancesByScene Entrances_BackAlleyHouseManInGreen = {
     "Back Alley House (Man in Green)",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x043B, "From Back Alley"},
     }
 };
 
-const EntrancesByScene Entrances_BarinadesLair = {
+EntrancesByScene Entrances_BarinadesLair = {
     "Barinade's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0301, "From Inside Jabu Jabu's Belly"},
     }
 };
 
-const EntrancesByScene Entrances_Bazaar = {
+EntrancesByScene Entrances_Bazaar = {
     "Bazaar",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x00B7, "From Kakariko Village"},
         {0x052C, "From Market"},
     }
 };
 
-const EntrancesByScene Entrances_BombchuBowlingAlley = {
+EntrancesByScene Entrances_BombchuBowlingAlley = {
     "Bombchu Bowling Alley",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0507, "From Market"},
     }
 };
 
-const EntrancesByScene Entrances_BombchuShop = {
+EntrancesByScene Entrances_BombchuShop = {
     "Bombchu Shop",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0528, "From Back Alley"},
         {0x0390, "Unused: normal entrance"},
     }
 };
 
-const EntrancesByScene Entrances_BongoBongosLair = {
+EntrancesByScene Entrances_BongoBongosLair = {
     "Bongo Bongo's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0413, "From Shadow Temple"},
     }
 };
 
-const EntrancesByScene Entrances_BottomOfTheWell = {
+EntrancesByScene Entrances_BottomOfTheWell = {
     "Bottom of the Well",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0098, "From Kakariko Village"},
         {0x05CC, "Unused: normal entrance"},
     }
 };
 
-const EntrancesByScene Entrances_CarpenterBosssHouse = {
+EntrancesByScene Entrances_CarpenterBosssHouse = {
     "Carpenter Boss's House",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x02FD, "From Kakariko Village"},
     }
 };
 
-const EntrancesByScene Entrances_CarpentersTent = {
+EntrancesByScene Entrances_CarpentersTent = {
     "Carpenter's Tent",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x03A0, "From Gerudo Valley"},
     }
 };
 
-const EntrancesByScene Entrances_CastleCourtyard = {
+EntrancesByScene Entrances_CastleCourtyard = {
     "Zelda's Courtyard",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0400, "From Castle Hedge Maze"},
         {0x05F0, "From Triforce Cutscene"},
     }
 };
 
-const EntrancesByScene Entrances_CastleHeadgeMaze = {
+EntrancesByScene Entrances_CastleHeadgeMaze = {
     "Castle Hedge Maze",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x007A, "From Hyrule Castle"},
         {0x0296, "From Castle Courtyard"},
     }
 };
 
-const EntrancesByScene Entrances_ChamberOfTheSages = {
+EntrancesByScene Entrances_ChamberOfTheSages = {
     "Chamber of the Sages",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x006B, "Default"},
         {0x02CE, "Unused: crashes"},
     }
 };
 
-const EntrancesByScene Entrances_CutsceneMap = {
+EntrancesByScene Entrances_CutsceneMap = {
     "Cutscene Map",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x00A0, "Default"},
         {0x02EF, "Unused: single copy, reversed rain?"},
     }
 };
 
-const EntrancesByScene Entrances_DeathMountainCrater = {
+EntrancesByScene Entrances_DeathMountainCrater = {
     "Death Mountain Crater",
     .nbItems = 6,
+    .initialCursorPos = 3,
     {
         {0x0147, "From Death Mountain Trail"},
         {0x0246, "From Goron City"},
@@ -441,9 +470,10 @@ const EntrancesByScene Entrances_DeathMountainCrater = {
     }
 };
 
-const EntrancesByScene Entrances_DeathMountainTrail = {
+EntrancesByScene Entrances_DeathMountainTrail = {
     "Death Mountain Trail",
     .nbItems = 6,
+    .initialCursorPos = 3,
     {
         {0x013D, "From Kakariko Village"},
         {0x01B9, "From Goron City"},
@@ -454,9 +484,10 @@ const EntrancesByScene Entrances_DeathMountainTrail = {
     }
 };
 
-const EntrancesByScene Entrances_DesertColossus = {
+EntrancesByScene Entrances_DesertColossus = {
     "Desert Colossus",
     .nbItems = 9,
+    .initialCursorPos = 3,
     {
         {0x0123, "From Haunted Wasteland"},
         {0x01E1, "From Spirit Temple (Main Entrance)"},
@@ -470,43 +501,48 @@ const EntrancesByScene Entrances_DesertColossus = {
     }
 };
 
-const EntrancesByScene Entrances_DodongosCavern = {
+EntrancesByScene Entrances_DodongosCavern = {
     "Dodongo's Cavern",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0004, "From Death Mountain Trail"},
         {0x00C5, "From King Dodongo's Lair"}
     }
 };
 
-const EntrancesByScene Entrances_FairysFountain = {
+EntrancesByScene Entrances_FairysFountain = {
     "Fairy's Fountain",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x036D, "From Various"},
     }
 };
 
-const EntrancesByScene Entrances_FireTemple = {
+EntrancesByScene Entrances_FireTemple = {
     "Fire Temple",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0165, "From Death Mountain Crater"},
         {0x0175, "From Volvagia's Lair"},
     }
 };
 
-const EntrancesByScene Entrances_FishingPond = {
+EntrancesByScene Entrances_FishingPond = {
     "Fishing Pond",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x045F, "From Lake Hylia"},
     }
 };
 
-const EntrancesByScene Entrances_ForestTemple = {
+EntrancesByScene Entrances_ForestTemple = {
     "Forest Temple",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x0169, "From Sacred Forest Meadow"},
         {0x024E, "From Phantom Ganon's Lair"},
@@ -514,9 +550,10 @@ const EntrancesByScene Entrances_ForestTemple = {
     }
 };
 
-const EntrancesByScene Entrances_GanonsTower = {
+EntrancesByScene Entrances_GanonsTower = {
     "Ganon's Tower",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x041B, "From Inside Ganon's Castle"},
         {0x0427, "From Ganondorf's Lair"},
@@ -524,9 +561,10 @@ const EntrancesByScene Entrances_GanonsTower = {
     }
 };
 
-const EntrancesByScene Entrances_GanonsTowerCollapsing = {
+EntrancesByScene Entrances_GanonsTowerCollapsing = {
     "Ganon's Tower (Collapsing)",
     .nbItems = 8,
+    .initialCursorPos = 3,
     {
         {0x04B6, "1F - Entrance Chamber"},
         {0x03E4, "2F - Dinolfos Room"},
@@ -539,17 +577,19 @@ const EntrancesByScene Entrances_GanonsTowerCollapsing = {
     }
 };
 
-const EntrancesByScene Entrances_GanonsBattleArena = {
+EntrancesByScene Entrances_GanonsBattleArena = {
     "Ganon's Tower Collapse & Battle Arena",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0517, "From Inside Ganon's Castle (Collapsing)"},
     }
 };
 
-const EntrancesByScene Entrances_GanonsTowerExterior = {
+EntrancesByScene Entrances_GanonsTowerExterior = {
     "Ganon's Tower Exterior (Collapsing)",
     .nbItems = 8,
+    .initialCursorPos = 3,
     {
         {0x043F, "From Ganondorf"},
         {0x0524, "Stairs A (Bottom)"},
@@ -562,25 +602,28 @@ const EntrancesByScene Entrances_GanonsTowerExterior = {
     }
 };
 
-const EntrancesByScene Entrances_GanondorfsLair = {
+EntrancesByScene Entrances_GanondorfsLair = {
     "Ganondorf's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x041F, "From Ganon's Tower"},
     }
 };
 
-const EntrancesByScene Entrances_GerudoTrainingGround = {
+EntrancesByScene Entrances_GerudoTrainingGround = {
     "Gerudo Training Ground",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0008, "From Gerudo's Fortress"},
     }
 };
 
-const EntrancesByScene Entrances_GerudoValley = {
+EntrancesByScene Entrances_GerudoValley = {
     "Gerudo Valley",
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x0117, "From Hyrule Field"},
         {0x01A5, "From Captured Without Hookshot"},
@@ -590,9 +633,10 @@ const EntrancesByScene Entrances_GerudoValley = {
     }
 };
 
-const EntrancesByScene Entrances_GerudosFortress = {
+EntrancesByScene Entrances_GerudosFortress = {
     "Gerudo's Fortress",
     .nbItems = 19,
+    .initialCursorPos = 3,
     {
         {0x0129, "From Gerudo Valley"},
         {0x03A8, "From Gerudo Training Ground"},
@@ -616,17 +660,19 @@ const EntrancesByScene Entrances_GerudosFortress = {
     }
 };
 
-const EntrancesByScene Entrances_GohmasLair = {
+EntrancesByScene Entrances_GohmasLair = {
     "Gohma's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x040F, "From Inside the Deku Tree"},
     }
 };
 
-const EntrancesByScene Entrances_GoronCity = {
+EntrancesByScene Entrances_GoronCity = {
     "Goron City",
     .nbItems = 4,
+    .initialCursorPos = 3,
     {
         {0x014D, "From Death Mountain Trail"},
         {0x01C1, "From Death Mountain Crater"},
@@ -635,49 +681,55 @@ const EntrancesByScene Entrances_GoronCity = {
     }
 };
 
-const EntrancesByScene Entrances_GoronShop = {
+EntrancesByScene Entrances_GoronShop = {
     "Goron Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x037C, "From Goron City"},
     }
 };
 
-const EntrancesByScene Entrances_GrannysPotionShop = {
+EntrancesByScene Entrances_GrannysPotionShop = {
     "Granny's Potion Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0072, "From Kakariko Village"},
     }
 };
 
-const EntrancesByScene Entrances_GraveFairysFountain = {
+EntrancesByScene Entrances_GraveFairysFountain = {
     "Grave (Fairy's Fountain)",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x004B, "From Graveyard"},
     }
 };
 
-const EntrancesByScene Entrances_GraveRedead = {
+EntrancesByScene Entrances_GraveRedead = {
     "Grave (Redead)",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x031C, "From Graveyard"},
     }
 };
 
-const EntrancesByScene Entrances_GravekeepersHut = {
+EntrancesByScene Entrances_GravekeepersHut = {
     "Gravekeeper's Hut",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x030D, "From Graveyard"},
     }
 };
 
-const EntrancesByScene Entrances_Graveyard = {
+EntrancesByScene Entrances_Graveyard = {
     "Graveyard",
     .nbItems = 9,
+    .initialCursorPos = 3,
     {
         {0x00E4, "From Kakariko Village"},
         {0x0205, "From Shadow Temple"},
@@ -691,9 +743,10 @@ const EntrancesByScene Entrances_Graveyard = {
     }
 };
 
-const EntrancesByScene Entrances_GreatFairysFountainSpells = {
+EntrancesByScene Entrances_GreatFairysFountainSpells = {
     "Great Fairy's Fountain (Spells)",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x0578, "From Hyrule Castle"},
         {0x0371, "From Zora's Fountain"},
@@ -701,9 +754,10 @@ const EntrancesByScene Entrances_GreatFairysFountainSpells = {
     }
 };
 
-const EntrancesByScene Entrances_GreatFairysFountainUpgrades = {
+EntrancesByScene Entrances_GreatFairysFountainUpgrades = {
     "Great Fairy's Fountain (Upgrades)",
     .nbItems = 4,
+    .initialCursorPos = 3,
     {
         {0x0315, "From Death Mountain Trail"},
         {0x04BE, "From Death Mountain Crater"},
@@ -712,9 +766,10 @@ const EntrancesByScene Entrances_GreatFairysFountainUpgrades = {
     }
 };
 
-const EntrancesByScene Entrances_Grottos = {
+EntrancesByScene Entrances_Grottos = {
     "Grottos",
     .nbItems = 14,
+    .initialCursorPos = 3,
     {
         {0x003F, "Default"},
         {0x0598, "Big Skulltula"},
@@ -733,25 +788,28 @@ const EntrancesByScene Entrances_Grottos = {
     }
 };
 
-const EntrancesByScene Entrances_GuardHouse = {
+EntrancesByScene Entrances_GuardHouse = {
     "Guard House (Lots o' Pots)",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x007E, "From Market Entrance"},
     }
 };
 
-const EntrancesByScene Entrances_HappyMaskShop = {
+EntrancesByScene Entrances_HappyMaskShop = {
     "Happy Mask Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0530, "From Market"},
     }
 };
 
-const EntrancesByScene Entrances_HauntedWasteland = {
+EntrancesByScene Entrances_HauntedWasteland = {
     "Haunted Wasteland",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x0130, "From Gerudo's Fortress"},
         {0x0365, "From Desert Colossus"},
@@ -759,25 +817,28 @@ const EntrancesByScene Entrances_HauntedWasteland = {
     }
 };
 
-const EntrancesByScene Entrances_HouseOfTwins = {
+EntrancesByScene Entrances_HouseOfTwins = {
     "House of Twins",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x009C, "From Kokiri Forest"},
     }
 };
 
-const EntrancesByScene Entrances_HouseOfSkulltula = {
+EntrancesByScene Entrances_HouseOfSkulltula = {
     "House of Skulltula",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0550, "From Kakariko Village"},
     }
 };
 
-const EntrancesByScene Entrances_HyruleCastleGanonsCastleExterior = {
+EntrancesByScene Entrances_HyruleCastleGanonsCastleExterior = {
     "Hyrule Castle / Ganon's Castle Exterior", //TODO: force age in wrong one
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x0138, "From Market"},
         {0x023D, "From Castle Hedge Maze / Ganon's Castle"},
@@ -787,9 +848,10 @@ const EntrancesByScene Entrances_HyruleCastleGanonsCastleExterior = {
     }
 };
 
-const EntrancesByScene Entrances_HyruleField = {
+EntrancesByScene Entrances_HyruleField = {
     "Hyrule Field",
     .nbItems = 18,
+    .initialCursorPos = 3,
     {
         {0x00CD, "From Zelda's Escape Cutscene"},
         {0x017D, "From Kakariko Village"},
@@ -812,27 +874,30 @@ const EntrancesByScene Entrances_HyruleField = {
     }
 };
 
-const EntrancesByScene Entrances_IceCavern = {
+EntrancesByScene Entrances_IceCavern = {
     "Ice Cavern",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0088, "From Zora's Fountain"},
         {0x05D8, "[Unused] Near Block Puzzle Room"},
     }
 };
 
-const EntrancesByScene Entrances_ImpasHouse = {
+EntrancesByScene Entrances_ImpasHouse = {
     "Impa's House",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x039C, "Main Entrance"},
         {0x05C8, "Cage"},
     }
 };
 
-const EntrancesByScene Entrances_InsideGanonsCastle = {
+EntrancesByScene Entrances_InsideGanonsCastle = {
     "Inside Ganon's Castle",
     .nbItems = 8,
+    .initialCursorPos = 3,
     {
         {0x0467, "From Ganon's Castle Exterior"},
         {0x0534, "From Ganon's Tower"},
@@ -845,35 +910,39 @@ const EntrancesByScene Entrances_InsideGanonsCastle = {
     }
 };
 
-const EntrancesByScene Entrances_InsideGanonsCastleCollapsing = {
+EntrancesByScene Entrances_InsideGanonsCastleCollapsing = {
     "Inside Ganon's Castle (Collapsing)",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x056C, "From Ganon's Tower (Collapsing)"},
     }
 };
 
-const EntrancesByScene Entrances_InsideJabuJabusBelly = {
+EntrancesByScene Entrances_InsideJabuJabusBelly = {
     "Inside Jabu-Jabu's Belly",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0028, "From Zora's Fountain"},
         {0x0407, "From Barinade's Lair"},
     }
 };
 
-const EntrancesByScene Entrances_InsideTheDekuTree = {
+EntrancesByScene Entrances_InsideTheDekuTree = {
     "Inside the Deku Tree",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0000, "From Kokiri Forest"},
         {0x0252, "From Gohma's Lair"},
     }
 };
 
-const EntrancesByScene Entrances_KakarikoPotionShop = {
+EntrancesByScene Entrances_KakarikoPotionShop = {
     "Kakariko Potion Shop",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x03EC, "Back Door"},
         {0x0384, "Front Door"},
@@ -881,9 +950,10 @@ const EntrancesByScene Entrances_KakarikoPotionShop = {
     }
 };
 
-const EntrancesByScene Entrances_KakarikoVillage = {
+EntrancesByScene Entrances_KakarikoVillage = {
     "Kakariko Village",
     .nbItems = 16,
+    .initialCursorPos = 3,
     {
         {0x00DB, "From Hyrule Field"},
         {0x0191, "From Death Mountain Trail"},
@@ -904,25 +974,28 @@ const EntrancesByScene Entrances_KakarikoVillage = {
     }
 };
 
-const EntrancesByScene Entrances_KingDodongosLair = {
+EntrancesByScene Entrances_KingDodongosLair = {
     "King Dodongo's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x040B, "From Dodongo's Cavern"},
     }
 };
 
-const EntrancesByScene Entrances_KnowItAllBrothersHouse = {
+EntrancesByScene Entrances_KnowItAllBrothersHouse = {
     "Know-It-All Brothers' House",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x00C9, "From Kokiri Forest"},
     }
 };
 
-const EntrancesByScene Entrances_KokiriForest = {
+EntrancesByScene Entrances_KokiriForest = {
     "Kokiri Forest",
     .nbItems = 13,
+    .initialCursorPos = 3,
     {
         {0x00EE, "Main Cutscene Entrance"},
         {0x0209, "From Inside the Deku Tree"},
@@ -940,17 +1013,19 @@ const EntrancesByScene Entrances_KokiriForest = {
     }
 };
 
-const EntrancesByScene Entrances_KokiriShop = {
+EntrancesByScene Entrances_KokiriShop = {
     "Kokiri Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x00C1, "From Kokiri Forest"},
     }
 };
 
-const EntrancesByScene Entrances_LakeHylia = {
+EntrancesByScene Entrances_LakeHylia = {
     "Lake Hylia",
     .nbItems = 10,
+    .initialCursorPos = 3,
     {
         {0x0102, "From Hyrule Field"},
         {0x0219, "From Gerudo Valley"},
@@ -965,27 +1040,30 @@ const EntrancesByScene Entrances_LakeHylia = {
     }
 };
 
-const EntrancesByScene Entrances_LakesideLaboratory = {
+EntrancesByScene Entrances_LakesideLaboratory = {
     "Lakeside Laboratory",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0043, "From Lake Hylia"},
         {0x01C5, "Unused: eyedrops timeout"},
     }
 };
 
-const EntrancesByScene Entrances_LinksHouse = {
+EntrancesByScene Entrances_LinksHouse = {
     "Link's House",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x00BB, "From Child Savewarp"},
         {0x0272, "From Kokiri Forest"},
     }
 };
 
-const EntrancesByScene Entrances_LonLonRanch = {
+EntrancesByScene Entrances_LonLonRanch = {
     "Lon Lon Ranch",
     .nbItems = 11,
+    .initialCursorPos = 3,
     {
         {0x0157, "From Hyrule Field"},
         {0x02AE, "From Epona's Song Cutscene"},
@@ -1001,9 +1079,10 @@ const EntrancesByScene Entrances_LonLonRanch = {
     }
 };
 
-const EntrancesByScene Entrances_LostWoods = {
+EntrancesByScene Entrances_LostWoods = {
     "Lost Woods",
     .nbItems = 10,
+    .initialCursorPos = 3,
     {
         {0x011E, "From Kokiri Forest (High Entrance)"},
         {0x01A9, "From Sacred Forest Meadow"},
@@ -1018,9 +1097,10 @@ const EntrancesByScene Entrances_LostWoods = {
     }
 };
 
-const EntrancesByScene Entrances_Market = {
+EntrancesByScene Entrances_Market = {
     "Market",
     .nbItems = 11,
+    .initialCursorPos = 3,
     {
         {0x00B1, "From Market Entrance"},
         {0x025A, "From Castle"},
@@ -1036,9 +1116,10 @@ const EntrancesByScene Entrances_Market = {
     }
 };
 
-const EntrancesByScene Entrances_MarketEntrance = {
+EntrancesByScene Entrances_MarketEntrance = {
     "Market Entrance",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x0033, "From Market"},
         {0x026E, "From Guard House"},
@@ -1046,41 +1127,46 @@ const EntrancesByScene Entrances_MarketEntrance = {
     }
 };
 
-const EntrancesByScene Entrances_MarketPotionShop = {
+EntrancesByScene Entrances_MarketPotionShop = {
     "Market Potion Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0388, "From Market"},
     }
 };
 
-const EntrancesByScene Entrances_MidosHouse = {
+EntrancesByScene Entrances_MidosHouse = {
     "Mido's House",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0433, "From Kokiri Forest"},
     }
 };
 
-const EntrancesByScene Entrances_MorphasLair = {
+EntrancesByScene Entrances_MorphasLair = {
     "Morpha's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0417, "From Water Temple"},
     }
 };
 
-const EntrancesByScene Entrances_PhantomGanonsLair = {
+EntrancesByScene Entrances_PhantomGanonsLair = {
     "Phantom Ganon's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x000C, "From Forest Temple"},
     }
 };
 
-const EntrancesByScene Entrances_RanchHouse = {
+EntrancesByScene Entrances_RanchHouse = {
     "Ranch Buildings",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x004F, "Talon's House from Lon Lon Ranch"},
         {0x05D0, "Tower from Lon Lon Ranch"},
@@ -1089,18 +1175,20 @@ const EntrancesByScene Entrances_RanchHouse = {
     }
 };
 
-const EntrancesByScene Entrances_RoyalFamilysTomb = {
+EntrancesByScene Entrances_RoyalFamilysTomb = {
     "Royal Family's Tomb",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x002D, "From Graveyard"},
         {0x0574, "Cutscene: Sun's Song"},
     }
 };
 
-const EntrancesByScene Entrances_SacredForestMeadow = {
+EntrancesByScene Entrances_SacredForestMeadow = {
     "Sacred Forest Meadow",
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x00FC, "From Lost Woods"},
         {0x0215, "From Forest Temple"},
@@ -1110,17 +1198,19 @@ const EntrancesByScene Entrances_SacredForestMeadow = {
     }
 };
 
-const EntrancesByScene Entrances_SariasHouse = {
+EntrancesByScene Entrances_SariasHouse = {
     "Saria's House",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0437, "From Kokiri Forest"},
     }
 };
 
-const EntrancesByScene Entrances_ShadowTemple = {
+EntrancesByScene Entrances_ShadowTemple = {
     "Shadow Temple",
     .nbItems = 4,
+    .initialCursorPos = 3,
     {
         {0x0037, "From Graveyard"},
         {0x02B2, "Unused: Outside Boss Door"},
@@ -1129,9 +1219,10 @@ const EntrancesByScene Entrances_ShadowTemple = {
     }
 };
 
-const EntrancesByScene Entrances_ShootingGallery = {
+EntrancesByScene Entrances_ShootingGallery = {
     "Shooting Gallery",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x016D, "From Market"},
         {0x003B, "From Kakariko Village"},
@@ -1139,9 +1230,10 @@ const EntrancesByScene Entrances_ShootingGallery = {
     }
 };
 
-const EntrancesByScene Entrances_SpiritTemple = {
+EntrancesByScene Entrances_SpiritTemple = {
     "Spirit Temple",
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x0082, "From Desert Colossus: Entrance"},
         {0x03F4, "From Desert Colossus: Statue's Left Hand"},
@@ -1151,17 +1243,19 @@ const EntrancesByScene Entrances_SpiritTemple = {
     }
 };
 
-const EntrancesByScene Entrances_Stable = {
+EntrancesByScene Entrances_Stable = {
     "Stable",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x02F9, "From Lon Lon Ranch"},
     }
 };
 
-const EntrancesByScene Entrances_TempleOfTime = {
+EntrancesByScene Entrances_TempleOfTime = {
     "Temple of Time",
     .nbItems = 7,
+    .initialCursorPos = 3,
     {
         {0x0053, "From Temple of Time Exterior"},
         {0x02CA, "From Event: Pull & Place Master Sword"},
@@ -1173,18 +1267,20 @@ const EntrancesByScene Entrances_TempleOfTime = {
     }
 };
 
-const EntrancesByScene Entrances_TempleOfTimeExterior = {
+EntrancesByScene Entrances_TempleOfTimeExterior = {
     "Temple of Time Exterior",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0171, "From Market"},
         {0x0472, "From Temple of Time"},
     }
 };
 
-const EntrancesByScene Entrances_ThievesHideout = {
+EntrancesByScene Entrances_ThievesHideout = {
     "Thieves' Hideout",
     .nbItems = 13,
+    .initialCursorPos = 3,
     {
         {0x049E, "Blue Cell Block (Bottom)"},
         {0x04A2, "Blue Cell Block (Top)"},
@@ -1202,43 +1298,48 @@ const EntrancesByScene Entrances_ThievesHideout = {
     }
 };
 
-const EntrancesByScene Entrances_TreasureBoxShop = {
+EntrancesByScene Entrances_TreasureBoxShop = {
     "Treasure Chest Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0063, "From Market"},
     }
 };
 
-const EntrancesByScene Entrances_TwinrovasLair = {
+EntrancesByScene Entrances_TwinrovasLair = {
     "Twinrova's Lair",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x008D, "From Spirit Temple"},
         {0x05EC, "Unused: boss arena"},
     }
 };
 
-const EntrancesByScene Entrances_VolvagiasLair = {
+EntrancesByScene Entrances_VolvagiasLair = {
     "Volvagia's Lair",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0305, "From Fire Temple"},
     }
 };
 
-const EntrancesByScene Entrances_WaterTemple = {
+EntrancesByScene Entrances_WaterTemple = {
     "Water Temple",
     .nbItems = 2,
+    .initialCursorPos = 3,
     {
         {0x0010, "From Lake Hylia"},
         {0x0423, "From Morpha's Lair"},
     }
 };
 
-const EntrancesByScene Entrances_Windmill = {
+EntrancesByScene Entrances_Windmill = {
     "Dampe's Grave & Windmill",
     .nbItems = 3,
+    .initialCursorPos = 3,
     {
         {0x044F, "From Graveyard"},
         {0x0453, "From Kakariko Village"},
@@ -1246,18 +1347,20 @@ const EntrancesByScene Entrances_Windmill = {
     }
 };
 
-const EntrancesByScene Entrances_ZoraShop = {
+EntrancesByScene Entrances_ZoraShop = {
     "Zora Shop",
     .nbItems = 1,
+    .initialCursorPos = 3,
     {
         {0x0380, "From Zora's Domain"}
     }
 
 };
 
-const EntrancesByScene Entrances_ZorasDomain = {
+EntrancesByScene Entrances_ZorasDomain = {
     "Zora's Domain",
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x0108, "From Zora's River"},
         {0x01A1, "From Zora's Fountain"},
@@ -1267,9 +1370,10 @@ const EntrancesByScene Entrances_ZorasDomain = {
     }
 };
 
-const EntrancesByScene Entrances_ZorasFountain = {
+EntrancesByScene Entrances_ZorasFountain = {
     "Zora's Fountain",
     .nbItems = 6,
+    .initialCursorPos = 3,
     {
         {0x010E, "Cutscene: Zora's Sapphire"},
         {0x0221, "From Inside Jabu Jabu's Belly"},
@@ -1280,9 +1384,10 @@ const EntrancesByScene Entrances_ZorasFountain = {
     }
 };
 
-const EntrancesByScene Entrances_ZorasRiver = {
+EntrancesByScene Entrances_ZorasRiver = {
     "Zora's River",
     .nbItems = 5,
+    .initialCursorPos = 3,
     {
         {0x00EA, "From Hyrule Field (Land Transition)"},
         {0x0199, "Unused: From Zora's Fountain"},

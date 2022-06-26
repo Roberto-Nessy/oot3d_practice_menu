@@ -9,6 +9,7 @@ u8 selectedProfile = 0;
 Menu SettingsMenu = {
     "Settings",
     .nbItems = 3,
+    .initialCursorPos = 0,
     {
         {"Profile: 0", METHOD, .method = Settings_CycleProfile},
         {"Save Settings", METHOD, .method = Settings_SaveExtSaveData},

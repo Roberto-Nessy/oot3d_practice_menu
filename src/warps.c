@@ -12,6 +12,7 @@ static u8 sceneSetupOverrideActive = 0;
 Menu WarpsMenu = {
     "Warps",
     .nbItems = 4,
+    .initialCursorPos = 0,
     {
         {"Places", METHOD, .method = WarpsPlacesMenuShow},
         {"Manually Enter Entrance Index", METHOD, .method = ManuallyEnterEntranceIndex},
@@ -23,6 +24,7 @@ Menu WarpsMenu = {
 AmountMenu WarpsOverridesMenu = {
     "Warps Overrides",
     .nbItems = 3,
+    .initialCursorPos = 0,
     {
         {0, 0,  6, "Game Mode", .method = Warps_OverrideGameMode},
         {0, 0, 14, "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
@@ -33,6 +35,7 @@ AmountMenu WarpsOverridesMenu = {
 WarpsSceneMenu WarpsPlacesDungeonsMenu = {
     "Dungeons",
     .nbItems = 17,
+    .initialCursorPos = 0,
     {
         {"0: Inside the Deku Tree", &Entrances_InsideTheDekuTree},
         {"1: Dodongo's Cavern", &Entrances_DodongosCavern},
@@ -57,6 +60,7 @@ WarpsSceneMenu WarpsPlacesDungeonsMenu = {
 WarpsSceneMenu WarpsPlacesBossesMenu = {
     "Bosses",
     .nbItems = 10,
+    .initialCursorPos = 0,
     {
         {"17: Gohma", &Entrances_GohmasLair},
         {"18: King Dodongo", &Entrances_KingDodongosLair},
@@ -74,6 +78,7 @@ WarpsSceneMenu WarpsPlacesBossesMenu = {
 WarpsSceneMenu WarpsPlacesTownsMenu = {
     "Towns",
     .nbItems = 9,
+    .initialCursorPos = 0,
     {
         {"82: Kakariko Village", &Entrances_KakarikoVillage},
         {"85: Kokiri Forest", &Entrances_KokiriForest},
@@ -91,6 +96,7 @@ WarpsSceneMenu WarpsPlacesTownsMenu = {
 WarpsSceneMenu WarpsPlacesHousesMenu = {
     "Houses",
     .nbItems = 15,
+    .initialCursorPos = 0,
     {
         {"52: Link's House", &Entrances_LinksHouse},
         {"38: Know-It-All Brothers' House", &Entrances_KnowItAllBrothersHouse},
@@ -113,6 +119,7 @@ WarpsSceneMenu WarpsPlacesHousesMenu = {
 WarpsSceneMenu WarpsPlacesShopsMenu = {
     "Shops",
     .nbItems = 12,
+    .initialCursorPos = 0,
     {
         {"44: Bazaar", &Entrances_Bazaar},
         {"45: Kokiri Shop", &Entrances_KokiriShop},
@@ -132,6 +139,7 @@ WarpsSceneMenu WarpsPlacesShopsMenu = {
 WarpsSceneMenu WarpsPlacesMiscMenu = {
     "Misc",
     .nbItems = 14,
+    .initialCursorPos = 0,
     {
         {"67: Temple of Time", &Entrances_TempleOfTime},
         {"74: Zelda's Courtyard", &Entrances_CastleCourtyard},
@@ -153,6 +161,7 @@ WarpsSceneMenu WarpsPlacesMiscMenu = {
 WarpsSceneMenu WarpsPlacesOverworldMenu = {
     "Overworld",
     .nbItems = 15,
+    .initialCursorPos = 0,
     {
         {"81: Hyrule Field", &Entrances_HyruleField},
         {"91: Lost Woods", &Entrances_LostWoods},
@@ -186,7 +195,7 @@ const WarpsPlacesMenuEntry placesMenuEntries[] = {
 const s32 WarpsPlacesMenuSize = 7;
 
 void WarpsPlacesMenuShow(void){
-    s32 selected = 0;
+    static s32 selected = 0;
 
     Draw_Lock();
     Draw_ClearFramebuffer();

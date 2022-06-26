@@ -475,7 +475,7 @@ static void Commands_EditCommand(u32 commandIndex){
 }
 
 void Commands_ShowCommandsMenu(void){
-    s32 selected = 0, page = 0, pagePrev = 0;
+    static s32 selected = 0, page = 0, pagePrev = 0;
 
     Draw_Lock();
     Draw_ClearFramebuffer();

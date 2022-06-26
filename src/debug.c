@@ -73,6 +73,7 @@ static const char* const FlagGroupNames[] = {
 Menu DebugMenu = {
     "Debug",
     .nbItems = 5,
+    .initialCursorPos = 0,
     {
         {"Objects", METHOD, .method = Debug_ShowObjects},
         {"Actors", METHOD, .method = DebugActors_ShowActors},
@@ -606,6 +607,7 @@ void Debug_FlagsEditor(void) {
 AmountMenu PlayerStatesMenu = {
     "Player States",
     .nbItems = 5,
+    .initialCursorPos = 0,
     {
         {0, 1,   0, "Lock=2000, DownA=0020, ReturnA=0010,...", .method = NULL},
         {0, 1,   0, "LedgeCancel=4000, GID=0400, GJ=0800,...", .method = NULL},

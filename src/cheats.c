@@ -51,6 +51,7 @@ void Cheats_Toggle(s32 selected){
 ToggleMenu CheatsMenu = {
     "Cheats",
     .nbItems = NUMBER_OF_CHEATS,
+    .initialCursorPos = 0,
     {
         {0, "Infinite Health", .method = Cheats_Toggle},
         {0, "Infinite Magic", .method = Cheats_Toggle},

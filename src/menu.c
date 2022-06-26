@@ -55,8 +55,8 @@ static void menuDraw(Menu *menu, u32 selected)
 
 void menuShow()
 {
-    u32 selectedItem = 0;
     Menu *currentMenu = &gz3DMenu;
+    u32 selectedItem = currentMenu->initialCursorPos;
     u32 nbPreviousMenus = 0;
     Menu *previousMenus[0x80];
     u32 previousSelectedItems[0x80];
@@ -88,7 +88,7 @@ void menuShow()
                     previousSelectedItems[nbPreviousMenus] = selectedItem;
                     previousMenus[nbPreviousMenus++] = currentMenu;
                     currentMenu = currentMenu->items[selectedItem].menu;
-                    selectedItem = 0;
+                    selectedItem = currentMenu->initialCursorPos;
                     break;
             }
 
@@ -126,6 +126,8 @@ void menuShow()
                 selectedItem = currentMenu->nbItems - 1;
         }
 
+        currentMenu->initialCursorPos = selectedItem;
+
         Draw_Lock();
         menuDraw(currentMenu, selectedItem);
         Draw_Unlock();
@@ -139,7 +141,7 @@ void menuShow()
 
 void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to rosalina cheats page
 {
-    s32 selected = 0, page = 0, pagePrev = 0;
+    s32 selected = menu->initialCursorPos, page = selected / TOGGLE_MENU_MAX_SHOW, pagePrev = page;
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -208,13 +210,15 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
             selected = menu->nbItems - 1;
         else if(selected >= menu->nbItems) selected = 0;
 
+        menu->initialCursorPos = selected;
+
         pagePrev = page;
         page = selected / TOGGLE_MENU_MAX_SHOW;
     } while(menuOpen);
 }
 
-void AmountMenuShow(AmountMenu* menu){ //displays an amount menu TODO: seems messed up
-    s32 selected = 0, page = 0, pagePrev = 0;
+void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
+    s32 selected = menu->initialCursorPos, page = selected / AMOUNT_MENU_MAX_SHOW, pagePrev = page;
     u32 curColor = COLOR_GREEN;
     u32 chosen = 0;
 
@@ -326,6 +330,8 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu TODO: seems mes
         if(chosen && menu->items[selected].method != NULL) {
             menu->items[selected].method(selected);
         }
+
+        menu->initialCursorPos = selected;
 
         pagePrev = page;
         page = selected / AMOUNT_MENU_MAX_SHOW;

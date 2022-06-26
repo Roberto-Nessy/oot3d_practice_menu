@@ -39,6 +39,7 @@ static char* Timer2States[] = {
 ToggleMenu FileMenu = {
     "File",
     .nbItems = 9,
+    .initialCursorPos = 0,
     {
         {0, "Gold Skulltulas defeated", .method = File_ToggleSkulltulaFlags },
         {0, "Seeds and Magic drops obtained", .method = File_ToggleItemDropsFlags },
@@ -55,6 +56,7 @@ ToggleMenu FileMenu = {
 AmountMenu TimersMenu = {
     "Timers",
     .nbItems = 4,
+    .initialCursorPos = 0,
     {
         {0, 0, 15, "Timer 1 State", .method = File_SetTimerStateAndValue },
         {0, 0,  0, "Timer 1 Value", .method = File_SetTimerStateAndValue },

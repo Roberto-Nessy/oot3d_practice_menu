@@ -145,7 +145,7 @@ static void WatchesDeleteWatch(u32 selected){
 
 void WatchesMenuFunc(void){
 
-    s32 selected = 0;
+    static s32 selected = 0;
     s32 toDelete = -1;
     s32 toSwap   = -1;
 

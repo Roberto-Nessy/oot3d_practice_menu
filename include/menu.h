@@ -57,6 +57,7 @@ typedef struct Menu {
     const char *title;
 
     u32 nbItems;
+    u32 initialCursorPos;
     MenuItem items[0x40];
 } Menu;
 
@@ -70,6 +71,7 @@ typedef struct ToggleMenu {
     const char *title;
 
     u32 nbItems;
+    s32 initialCursorPos;
     ToggleMenuItem items[0x40];
 } ToggleMenu;
 
@@ -85,6 +87,7 @@ typedef struct AmountMenu {
     const char *title;
 
     u32 nbItems;
+    s32 initialCursorPos;
     AmountMenuItem items[0x40];
 } AmountMenu;
 

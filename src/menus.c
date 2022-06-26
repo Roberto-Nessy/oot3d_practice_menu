@@ -45,6 +45,7 @@
 Menu gz3DMenu = {
     "Practice Menu",
     .nbItems = 10,
+    .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
         { "Scene", MENU, .menu = &SceneMenu },

@@ -12,6 +12,7 @@ static u32 SelectedBottle;
 Menu InventoryMenu = {
     "Inventory",
     .nbItems = 5,
+    .initialCursorPos = 0,
     {
         {"Items", METHOD, .method = Inventory_ItemsMenuFunc},
         {"Right Side Gear", METHOD, .method = Inventory_RightGearMenuFunc},
@@ -24,6 +25,7 @@ Menu InventoryMenu = {
 ToggleMenu InventoryItemsMenu = {
     "Items",
     .nbItems = 28,
+    .initialCursorPos = 0,
     {
         {0, "Deku Sticks", .method = Inventory_ItemsToggle},
         {0, "Deku Nut", .method = Inventory_ItemsToggle},
@@ -59,6 +61,7 @@ ToggleMenu InventoryItemsMenu = {
 ToggleMenu InventoryBottlesMenu = {
     "Choose Bottle Contents",
     .nbItems = 14,
+    .initialCursorPos = 0,
     {
         {0, "Empty Bottle", .method = Inventory_BottleSelect},
         {0, "Red Potion", .method = Inventory_BottleSelect},
@@ -80,6 +83,7 @@ ToggleMenu InventoryBottlesMenu = {
 ToggleMenu InventoryChildTradeMenu = {
     "Choose Child Trade Item",
     .nbItems = 13,
+    .initialCursorPos = 0,
     {
         {0, "Weird Egg", .method = Inventory_ChildTradeSelect},
         {0, "Cucco", .method = Inventory_ChildTradeSelect},
@@ -100,6 +104,7 @@ ToggleMenu InventoryChildTradeMenu = {
 ToggleMenu InventoryAdultTradeMenu = {
     "Choose Adult Trade Item",
     .nbItems = 12,
+    .initialCursorPos = 0,
     {
         {0, "Pocket Egg", .method = Inventory_AdultTradeSelect},
         {0, "Pocket Cucco", .method = Inventory_AdultTradeSelect},
@@ -119,6 +124,7 @@ ToggleMenu InventoryAdultTradeMenu = {
 ToggleMenu InventoryRightGearMenu = {
     "Right Side Gear",
     .nbItems = 28,
+    .initialCursorPos = 0,
     {
         {0, "Kokiri Sword", .method = Inventory_RightGearToggle},
         {0, "Master Sword", .method = Inventory_RightGearToggle},
@@ -154,6 +160,7 @@ ToggleMenu InventoryRightGearMenu = {
 ToggleMenu InventoryLeftGearMenu = {
     "Left Side Gear",
     .nbItems = 13,
+    .initialCursorPos = 0,
     {
         {0, "Forest Medallion", .method = Inventory_LeftGearToggle},
         {0, "Fire Medallion", .method = Inventory_LeftGearToggle},
@@ -174,6 +181,7 @@ ToggleMenu InventoryLeftGearMenu = {
 ToggleMenu InventorySongsMenu = {
     "Ocarina Songs",
     .nbItems = 12,
+    .initialCursorPos = 0,
     {
         {0, "Zelda's Lullaby", .method = Inventory_SongsToggle},
         {0, "Epona's Song", .method = Inventory_SongsToggle},
@@ -193,6 +201,7 @@ ToggleMenu InventorySongsMenu = {
 AmountMenu InventoryAmountsMenu = {
     "Edit Amounts",
     .nbItems = 14,
+    .initialCursorPos = 0,
     {
         {0, 0,   255, "Deku Sticks", .method = Inventory_AmountsSelect},
         {0, 0,   255, "Deku Nuts", .method = Inventory_AmountsSelect},

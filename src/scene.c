@@ -13,6 +13,7 @@ void* storedPlayerUpdateFunction = &dummyActorFunction;
 static Menu CollisionMenu = {
     "Collision",
     .nbItems = 1,
+    .initialCursorPos = 0,
     {
         {"TODO Placeholder", METHOD, .method = NULL}, //TODO: Collision options
     }
@@ -21,6 +22,7 @@ static Menu CollisionMenu = {
 static Menu CameraMenu = {
     "Free camera",
     .nbItems = 1,
+    .initialCursorPos = 0,
     {
         {"TODO Placeholder", METHOD, .method = NULL}, //TODO: free camera options
     }
@@ -29,6 +31,7 @@ static Menu CameraMenu = {
 AmountMenu RoomNumberMenu = {
     "Choose a Room Number, then void out :)",
     .nbItems = 1,
+    .initialCursorPos = 0,
     {
         {0, 0, 28, "Room Number", .method = Scene_SetRoomNumberinEP},
     }
@@ -37,6 +40,7 @@ AmountMenu RoomNumberMenu = {
 ToggleMenu HideEntitiesMenu = {
     "Hide Game Entities",
     .nbItems = 2,
+    .initialCursorPos = 0,
     {
         {0, "Hide Rooms", .method = Scene_HideRoomsToggle},
         {0, "Hide Actors (TODO)", .method = NULL},
@@ -46,6 +50,7 @@ ToggleMenu HideEntitiesMenu = {
 Menu SceneMenu = {
     "Scene",
     .nbItems = 8,
+    .initialCursorPos = 0,
     {
         {"NoClip / Move Link", METHOD, .method = Scene_NoClipDescription},
         {"Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint},
