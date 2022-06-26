@@ -70,6 +70,7 @@ ToggleMenu CheatsMenu = {
         {0, "ISG", .method = Cheats_Toggle},
         {0, "Turbo Text", .method = Cheats_Toggle},
         {0, "Skip Songs Playback", .method = Cheats_Toggle},
+        {0, "Fix Black Screen Glitch", .method = Cheats_Toggle},
     }
 };
 
@@ -142,6 +143,9 @@ void applyCheats() {
                 gGlobalContext->msgMode == 19) {
             gGlobalContext->msgMode = 23;
         }
+    }
+    if(cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH] && isInGame() && gSaveContext.cutsceneIndex == 0 && gSaveContext.gameMode == 1) {
+        gGlobalContext->csCtx.segment = 0;
     }
 }
 
