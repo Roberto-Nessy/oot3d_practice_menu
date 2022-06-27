@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "menus/watches.h"
 #include "menus/debug.h"
+#include "menus/settings.h"
 #include "draw.h"
 #include "input.h"
 #include "z3D/z3D.h"
@@ -148,6 +149,10 @@ void WatchesMenuFunc(void){
     static s32 selected = 0;
     s32 toDelete = -1;
     s32 toSwap   = -1;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();

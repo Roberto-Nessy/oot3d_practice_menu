@@ -6,6 +6,7 @@
 #include "menus/commands.h"
 #include "menus/scene.h"
 #include "menus/cheats.h"
+#include "menus/settings.h"
 #include "z3D/z3D.h"
 #include "utils.h"
 #include <stdio.h>
@@ -64,6 +65,10 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
     u32 curColor = COLOR_WHITE;
     s32 cutsceneIndex = -1;
     u32 chosen = 0;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 3, page = 0, pagePrev = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -230,6 +235,10 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
     s32 selected = menu->initialCursorPos;
     s32 page = selected / SCENE_MENU_MAX_SHOW;
     s32 pagePrev = page;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 0, page = 0, pagePrev = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();

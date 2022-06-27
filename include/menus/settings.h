@@ -7,6 +7,7 @@
 #define EXTSAVEDATA_VERSION 0
 
 extern Menu SettingsMenu;
+extern ToggleMenu ToggleSettingsMenu;
 
 extern u8 selectedProfile;
 
@@ -15,12 +16,22 @@ void Settings_CycleProfile(void);
 void Settings_InitExtSaveData(void);
 void Settings_SaveExtSaveData(void);
 void Settings_LoadExtSaveData(void);
+void Settings_Toggle(s32 selected);
+void Settings_ShowToggleSettingsMenu(void);
 
 typedef enum {
     SETTINGS_PROFILE,
     SETTINGS_SAVE,
     SETTINGS_LOAD,
+    SETTINGS_TOGGLES,
+    NUMBER_OF_SETTING_OPTIONS,
 } Settings;
+
+typedef enum {
+    TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY,
+    TOGGLESETTINGS_REMEMBER_CURSOR_POSITION,
+    NUMBER_OF_TOGGLE_SETTINGS,
+} ToggleSettings;
 
 typedef struct {
     u32      version;

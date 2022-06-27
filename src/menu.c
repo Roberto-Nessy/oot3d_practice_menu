@@ -34,6 +34,7 @@
 #include "utils.h"
 #include "input.h"
 #include "menus/commands.h"
+#include "menus/settings.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -60,6 +61,10 @@ void menuShow()
     u32 nbPreviousMenus = 0;
     Menu *previousMenus[0x80];
     u32 previousSelectedItems[0x80];
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selectedItem = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -89,6 +94,9 @@ void menuShow()
                     previousMenus[nbPreviousMenus++] = currentMenu;
                     currentMenu = currentMenu->items[selectedItem].menu;
                     selectedItem = currentMenu->initialCursorPos;
+                    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+                        selectedItem = 0;
+                    }
                     break;
             }
 
@@ -142,6 +150,10 @@ void menuShow()
 void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to rosalina cheats page
 {
     s32 selected = menu->initialCursorPos, page = selected / TOGGLE_MENU_MAX_SHOW, pagePrev = page;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = page = pagePrev = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -221,6 +233,10 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
     s32 selected = menu->initialCursorPos, page = selected / AMOUNT_MENU_MAX_SHOW, pagePrev = page;
     u32 curColor = COLOR_GREEN;
     u32 chosen = 0;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = page = pagePrev = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();

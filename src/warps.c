@@ -3,6 +3,7 @@
 #include "draw.h"
 #include "input.h"
 #include "menus/commands.h"
+#include "menus/settings.h"
 #include "z3D/z3D.h"
 #include "z3D/entrances.h"
 #include <stdio.h>
@@ -196,6 +197,10 @@ const s32 WarpsPlacesMenuSize = 7;
 
 void WarpsPlacesMenuShow(void){
     static s32 selected = 0;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();

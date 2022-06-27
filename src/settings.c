@@ -8,14 +8,33 @@ u8 selectedProfile = 0;
 
 Menu SettingsMenu = {
     "Settings",
-    .nbItems = 3,
+    .nbItems = NUMBER_OF_SETTING_OPTIONS,
     .initialCursorPos = 0,
     {
         {"Profile: 0", METHOD, .method = Settings_CycleProfile},
         {"Save Settings", METHOD, .method = Settings_SaveExtSaveData},
         {"Load Settings", METHOD, .method = Settings_LoadExtSaveData},
+        {"Other Toggle Settings (Not Saved)", METHOD, .method = Settings_ShowToggleSettingsMenu},
     }
 };
+
+ToggleMenu ToggleSettingsMenu = {
+    "Other Toggle Settings (Not Saved)",
+    .nbItems = NUMBER_OF_TOGGLE_SETTINGS,
+    .initialCursorPos = 0,
+    {
+        {1, "Pause/Commands Display", METHOD, .method = Settings_Toggle},
+        {1, "Remember cursor position in all menus", METHOD, .method = Settings_Toggle},
+    }
+};
+
+void Settings_ShowToggleSettingsMenu(void){
+    ToggleMenuShow(&ToggleSettingsMenu);
+}
+
+void Settings_Toggle(s32 selected) {
+    ToggleSettingsMenu.items[selected].on = !ToggleSettingsMenu.items[selected].on;
+}
 
 void Settings_CycleProfile(void) {
     selectedProfile++;

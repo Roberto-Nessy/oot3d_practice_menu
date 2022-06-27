@@ -125,6 +125,9 @@ static void drawWatches(void) {
 }
 
 void drawAlert() {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
+        alertFrames = 0;
+
     if (alertFrames > 0) {
         Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, alertMessage);
         Draw_FlushFramebufferTop();
@@ -143,6 +146,9 @@ static void titleScreenDisplay(void){
 }
 
 void pauseDisplay(void) {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
+        return;
+
     Draw_DrawFormattedStringTop(20, 20, COLOR_WHITE, "Paused");
     Draw_FlushFramebufferTop();
 }
