@@ -158,7 +158,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     }
                 }
             }
-            else if (ADDITIONAL_FLAG_BUTTON && selected == Entrance_Select_Menu_Etcs) {
+            else if ((pressed & BUTTON_L1) && selected == Entrance_Select_Menu_Etcs) {
                 chosenEntranceIndex = 0;
             }
         } else { // not chosen
@@ -500,11 +500,11 @@ EntrancesByScene Entrances_DesertColossus = {
     {
         {0x0123, "From Haunted Wasteland"},
         {0x01E1, "From Spirit Temple (Main Entrance)"},
-        {0x01E5, "From Spirit Temple (Statue's Left Hand)"},
-        {0x01E9, "From Spirit Temple (Statue's Right Hand)"},
+        {0x01E5, "From Spirit Temple (Silver Gauntlets chest)"},
+        {0x01E9, "From Spirit Temple (Mirror Shield chest)"},
         {0x01ED, "From Requiem of Spirit Cutscene"},
         {0x01F1, "From Warp Song: Requiem of Spirit"},
-        {0x01F5, "From Silver Gauntlets Cutscene"},
+        {0x01F5, "From Nabooru Capture Cutscene"},
         {0x057C, "From Great Fairy's Fountain"},
         {0x0610, "From Blue Warp"},
     }
@@ -571,18 +571,18 @@ EntrancesByScene Entrances_GanonsTower = {
 };
 
 EntrancesByScene Entrances_GanonsTowerCollapsing = {
-    "Ganon's Tower (Collapsing)",
+    "Ganon's Tower Interior (Collapsing)",
     .nbItems = 8,
     .initialCursorPos = 3,
     {
-        {0x04B6, "1F - Entrance Chamber"},
-        {0x03E4, "2F - Dinolfos Room"},
-        {0x03DC, "3F - Boss Key Room (Top)"},
-        {0x03E0, "3F - Boss Key Room (Bottom)"},
+        {0x0179, "5F - Ganondorf's Lair (Top)"},
+        {0x0134, "5F - Ganondorf's Lair (Bottom)"},
         {0x01B5, "4F - Iron Knuckle Room (Top)"},
         {0x0256, "4F - Iron Knuckle Room (Bottom)"},
-        {0x0134, "5F - Ganondorf's Lair (Bottom)"},
-        {0x0179, "5F - Ganondorf's Lair (Top)"}
+        {0x03DC, "3F - Stalfos Room (Top)"},
+        {0x03E0, "3F - Stalfos Room (Bottom)"},
+        {0x03E4, "2F - Dinolfos Room (Top)"},
+        {0x04B6, "1F - Dinolfos Room (Bottom)"},
     }
 };
 
@@ -600,14 +600,14 @@ EntrancesByScene Entrances_GanonsTowerExterior = {
     .nbItems = 8,
     .initialCursorPos = 3,
     {
-        {0x043F, "From Ganondorf"},
-        {0x0524, "Stairs A (Bottom)"},
-        {0x051C, "Stairs A (Top)"},
-        {0x01C9, "Stairs B (Bottom)"},
-        {0x0334, "Stairs B (Top)"},
-        {0x0330, "Stairs C (Bottom)"},
-        {0x032C, "Stairs C (Top)"},
-        {0x04BA, "Stairs D (Bottom)"},
+        {0x043F, "From Ganondorf's death"},
+        {0x04BA, "From Ganondorf's Lair (Top)"},
+        {0x032C, "From Ganondorf's Lair (Bottom)"},
+        {0x0330, "From Iron Knuckle Room (Top)"},
+        {0x0334, "From Iron Knuckle Room (Bottom)"},
+        {0x01C9, "From Stalfos Room (Top)"},
+        {0x051C, "From Stalfos Room (Bottom)"},
+        {0x0524, "From Dinolfos Room (Top)"},
     }
 };
 
