@@ -1084,6 +1084,12 @@ void MemoryEditor_TableSettings(void) {
             if (selected == 2)
                 tableIndexType = TABLEINDEX_U16;
         }
+        else if ((pressed & BUTTON_L1) && chosen) {
+            if (selected == 0)
+                tableElementSize = 0;
+            else if (selected == 2)
+                tableIndex = 0;
+        }
         else if (pressed & BUTTON_Y && ADDITIONAL_FLAG_BUTTON) {
             MemoryEditor_JumpToTableElementFromIndex();
             break;
