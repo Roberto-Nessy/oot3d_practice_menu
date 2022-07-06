@@ -1129,13 +1129,10 @@ void MemoryEditor_TableSettings(void) {
             }
         }
 
-        if (tableIndex > 0xFFFF)
-            tableIndex -= 0x10000;
-        else if (tableIndex < 0)
-            tableIndex += 0x10000;
-
         if (tableIndexType > 3)
             tableIndexType = 0;
+
+        MemoryEditor_BoundTableIndexValue();
 
     } while(menuOpen);
 
@@ -1174,4 +1171,30 @@ void MemoryEditor_JumpToTableElement(void) {
     }
 
     MemoryEditor_JumpToTableElementFromIndex();
+}
+
+void MemoryEditor_BoundTableIndexValue(void) {
+
+    if (tableIndex > 0xFFFF)
+        tableIndex -= 0x10000;
+    else if (tableIndex < 0)
+        tableIndex += 0x10000;
+
+    switch (tableIndexType) {
+        case TABLEINDEX_U8:
+            tableIndex &= 0xFF;
+            break;
+        case TABLEINDEX_S8:
+            tableIndex &= 0xFF;
+            if (tableIndex >= 0x80)
+                tableIndex -= 0x100;
+            break;
+        case TABLEINDEX_U16:
+            tableIndex &= 0xFFFF;
+            break;
+        case TABLEINDEX_S16:
+            if (tableIndex >= 0x8000)
+                tableIndex -= 0x10000;
+            break;
+    }
 }

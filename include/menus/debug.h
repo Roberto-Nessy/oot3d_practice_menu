@@ -20,6 +20,7 @@ void MemoryEditor_FollowPointer(void);
 void MemoryEditor_TableSettings(void);
 void MemoryEditor_JumpToTableElementFromIndex(void);
 void MemoryEditor_JumpToTableElement(void);
+void MemoryEditor_BoundTableIndexValue(void);
 
 typedef enum {
     FLAGS_SWITCH,
