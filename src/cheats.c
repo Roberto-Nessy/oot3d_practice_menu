@@ -132,7 +132,7 @@ void applyCheats() {
         gSaveContext.dayTime = frozenTime;
     }
     if(cheats[CHEATS_ISG] && isInGame()) {
-        PLAYER->isg = 1;
+        PLAYER->meleeWeaponState = 1;
     }
     if(forcedUsableItems && isInGame()) {
         Cheats_UsableItems();

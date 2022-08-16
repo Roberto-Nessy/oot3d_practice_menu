@@ -21,6 +21,6 @@ bool is_valid_memory_write(const MemInfo* info) {
 bool isInGame() {
     if (!loadedGlobalContext) return false;
     // this is to make sure the player actor exists
-    const MemInfo address_info = query_memory_permissions((int)&(PLAYER->isg));
+    const MemInfo address_info = query_memory_permissions((int)&(PLAYER->meleeWeaponState));
     return is_valid_memory_read(&address_info);
 }
