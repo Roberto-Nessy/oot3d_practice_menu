@@ -8,24 +8,18 @@ hook_into_Gfx_Update:
     pop {r0-r12, lr}
     pop {r4-r8, pc}
 
+.global hook_before_GlobalContext_Update
+hook_before_GlobalContext_Update:
+    push {r0-r12, lr}
+    bl before_GlobalContext_Update
+    pop {r0-r12, lr}
+    cpy r7,r0
+    bx lr
 
-#.global hook_into_area_load
-#hook_into_area_load:
-#    push {r0-r12, lr}
-#    bl area_load_main
-#    pop {r0-r12, lr}
-#.if _USA_==1
-#    b 0x2E37D4
-#.endif
-#.if _JP_==1
-#    b 0x2E32EC
-#.endif
-
-.global gGlobalContext
 .global hook_after_GlobalContext_Update
 hook_after_GlobalContext_Update:
     push {r0-r12, lr}
-    bl setGlobalContext
+    bl after_GlobalContext_Update
     pop {r0-r12, lr}
 .if _JP_==1
     b 0x2E2108

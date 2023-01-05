@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include "z3D/z3D.h"
+#include "actor.h"
 
 #define NOCLIP_SLOW_SPEED 4
 #define NOCLIP_FAST_SPEED 20
@@ -27,7 +28,21 @@ u32 alertFrames = 0;
 char* alertMessage = "";
 
 GlobalContext* gGlobalContext;
-u8 loadedGlobalContext = 0;
+u8 gInit = 0;
+
+void setGlobalContext(GlobalContext* globalContext) {
+    gGlobalContext = globalContext;
+}
+
+void before_GlobalContext_Update(GlobalContext* globalCtx) {
+    if (!gInit) {
+        setGlobalContext(globalCtx);
+        Actor_Init();
+        gInit = 1;
+    }
+}
+
+void after_GlobalContext_Update(GlobalContext* globalCtx) {}
 
 static void toggle_advance(void) {
     if(pauseUnpause && advance_ctx.advance_state == NORMAL && !advance_ctx.latched){
@@ -269,15 +284,7 @@ void advance_main(void) {
     }
 }
 
-void setGlobalContext(GlobalContext* globalContext){
-    gGlobalContext = globalContext;
-    loadedGlobalContext = 1;
-}
-
 void Gfx_SleepQueryCallback(void) {
     menuOpen = false;
     isAsleep = true;
 }
-
-void area_load_main(void){}
-int main(void){}

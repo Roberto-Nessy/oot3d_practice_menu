@@ -504,6 +504,14 @@ typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* p
 #endif
 #define Player_SetEquipmentData ((Player_SetEquipmentData_proc)Player_SetEquipmentData_addr)
 
+typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
+#ifdef Version_JP
+    #define Flags_SetEnv_addr 0x36621C
+#else //USA & EUR
+    #define Flags_SetEnv_addr 0x366704
+#endif
+#define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
+
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
 #define Item_Give_addr 0x376A78

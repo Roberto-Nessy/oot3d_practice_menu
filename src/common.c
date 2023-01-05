@@ -1,7 +1,7 @@
 #include "common.h"
 #include "z3D/z3D.h"
 
-extern u8 loadedGlobalContext;
+extern u8 gInit;
 
 MemInfo query_memory_permissions(u32 address) {
     MemInfo memory_info = {};
@@ -19,7 +19,9 @@ bool is_valid_memory_write(const MemInfo* info) {
 }
 
 bool isInGame() {
-    if (!loadedGlobalContext) return false;
+    if (!gInit || gSaveContext.gameMode == 2) {
+        return false;
+    }
     // this is to make sure the player actor exists
     const MemInfo address_info = query_memory_permissions((int)&(PLAYER->meleeWeaponState));
     return is_valid_memory_read(&address_info);

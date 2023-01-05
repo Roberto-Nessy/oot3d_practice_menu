@@ -56,6 +56,10 @@ SECTIONS
 		*(.patch_OverrideSceneSetup)
 	}
 
+	.patch_before_GlobalContext_Update 0x4523B0 : {
+		*(.patch_before_GlobalContext_Update)
+	}
+
 	.patch_after_GlobalContext_Update 0x452454 : {
 		*(.patch_after_GlobalContext_Update)
 	}
