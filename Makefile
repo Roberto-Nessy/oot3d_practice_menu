@@ -164,11 +164,8 @@ all: $(BUILD)
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@if python3 patch.py $(OUTPUT).elf; then \
-		echo "created basecode.ips" ; \
-	else \
+	@if ! python3 patch.py $(OUTPUT).elf; then \
 		python patch.py $(OUTPUT).elf; \
-		echo "created basecode.ips" ; \
 	fi
 
 #---------------------------------------------------------------------------------
@@ -186,7 +183,7 @@ DEPENDS	:=	$(OFILES:.o=.d)
 # main targets
 #---------------------------------------------------------------------------------
 
-$(OUTPUT).elf	:	$(OFILES)
+$(OUTPUT).elf	:	$(OFILES) $(TOPDIR)/$(LINK_SCRIPT)
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data
