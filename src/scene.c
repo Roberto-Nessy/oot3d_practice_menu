@@ -6,12 +6,14 @@
 #include "input.h"
 
 u8 noClip = 0;
+u8 releasedABbuttons = 0;
 void dummyActorFunction(Actor* thisx, GlobalContext* globalCtx) {}
 void* storedPlayerUpdateFunction = &dummyActorFunction;
 
 static Menu CollisionMenu = {
     "Collision",
     .nbItems = 1,
+    .initialCursorPos = 0,
     {
         {"TODO Placeholder", METHOD, .method = NULL}, //TODO: Collision options
     }
@@ -20,6 +22,7 @@ static Menu CollisionMenu = {
 static Menu CameraMenu = {
     "Free camera",
     .nbItems = 1,
+    .initialCursorPos = 0,
     {
         {"TODO Placeholder", METHOD, .method = NULL}, //TODO: free camera options
     }
@@ -28,6 +31,7 @@ static Menu CameraMenu = {
 AmountMenu RoomNumberMenu = {
     "Choose a Room Number, then void out :)",
     .nbItems = 1,
+    .initialCursorPos = 0,
     {
         {0, 0, 28, "Room Number", .method = Scene_SetRoomNumberinEP},
     }
@@ -36,6 +40,7 @@ AmountMenu RoomNumberMenu = {
 ToggleMenu HideEntitiesMenu = {
     "Hide Game Entities",
     .nbItems = 2,
+    .initialCursorPos = 0,
     {
         {0, "Hide Rooms", .method = Scene_HideRoomsToggle},
         {0, "Hide Actors (TODO)", .method = NULL},
@@ -45,6 +50,7 @@ ToggleMenu HideEntitiesMenu = {
 Menu SceneMenu = {
     "Scene",
     .nbItems = 8,
+    .initialCursorPos = 0,
     {
         {"NoClip / Move Link", METHOD, .method = Scene_NoClipDescription},
         {"Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint},
@@ -108,7 +114,7 @@ void Scene_ClearFlags(void) {
 
 void Scene_NoClipToggle(void) {
     if (isInGame()) {
-            if (!noClip) {
+        if (!noClip) {
             storedPlayerUpdateFunction = PLAYER->actor.update;
             PLAYER->actor.update = dummyActorFunction;
             PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
@@ -120,6 +126,7 @@ void Scene_NoClipToggle(void) {
             noClip = 0;
         }
         menuOpen = 0;
+        releasedABbuttons = 0;
     }
 }
 

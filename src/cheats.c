@@ -6,18 +6,19 @@
 
 #define SEQ_AUDIO_BLANK 0x1000142
 
-u8 cheats[0x12] = {0};
+u8 cheats[NUMBER_OF_CHEATS] = {0};
 u8 forcedUsableItems = 0;
 u16 frozenTime = 0;
 
-/*void Cheats_CheatsMenuInit() {
-    for (int i = 0; i < 12; i++) {
+void Cheats_CheatsMenuInit() {
+    for (int i = 0; i < NUMBER_OF_CHEATS; i++) {
         CheatsMenu.items[i].on = cheats[i];
     }
-};*/
+    if (forcedUsableItems) CheatsMenu.items[CHEATS_USABLE_ITEMS].title = "Unrestricted Items - Forced mode ON";
+};
 
 void Cheats_ShowCheatsMenu(){
-    //Cheats_CheatsMenuInit();
+    Cheats_CheatsMenuInit();
     ToggleMenuShow(&CheatsMenu);
 }
 
@@ -49,7 +50,8 @@ void Cheats_Toggle(s32 selected){
 
 ToggleMenu CheatsMenu = {
     "Cheats",
-    .nbItems = 17,
+    .nbItems = NUMBER_OF_CHEATS,
+    .initialCursorPos = 0,
     {
         {0, "Infinite Health", .method = Cheats_Toggle},
         {0, "Infinite Magic", .method = Cheats_Toggle},
@@ -68,42 +70,44 @@ ToggleMenu CheatsMenu = {
         {0, "Unrestricted Items - Forced mode OFF", .method = Cheats_Toggle},
         {0, "ISG", .method = Cheats_Toggle},
         {0, "Turbo Text", .method = Cheats_Toggle},
+        {0, "Skip Songs Playback", .method = Cheats_Toggle},
+        {0, "Fix Black Screen Glitch", .method = Cheats_Toggle},
     }
 };
 
 void applyCheats() {
     if(cheats[CHEATS_HEALTH]) {
         gSaveContext.health = gSaveContext.healthCapacity;
-    };
+    }
     if(cheats[CHEATS_MAGIC]) {
         gSaveContext.magic = 0x30 * gSaveContext.magicLevel;
-    };
+    }
     if(cheats[CHEATS_STICKS]) {
         gSaveContext.ammo[SLOT_STICK] = 10 * ((gSaveContext.upgrades >> 17) & 0x7);
         if (gSaveContext.ammo[SLOT_STICK] == 0) gSaveContext.ammo[SLOT_STICK] = 1;
-    };
+    }
     if(cheats[CHEATS_NUTS]) {
         gSaveContext.ammo[SLOT_NUT] = 10 + 10 * ((gSaveContext.upgrades >> 20) & 0x7);
         if (gSaveContext.ammo[SLOT_NUT] == 10) gSaveContext.ammo[SLOT_NUT] = 1;
-    };
+    }
     if(cheats[CHEATS_BOMBS]) {
         gSaveContext.ammo[SLOT_BOMB] = 10 + 10 * ((gSaveContext.upgrades >> 3) & 0x7);
         if (gSaveContext.ammo[SLOT_BOMB] == 10) gSaveContext.ammo[SLOT_BOMB] = 1;
-    };
+    }
     if(cheats[CHEATS_ARROWS]) {
         gSaveContext.ammo[SLOT_BOW] = 20 + 10 * (gSaveContext.upgrades & 0x7);
         if (gSaveContext.ammo[SLOT_BOW] == 20) gSaveContext.ammo[SLOT_BOW] = 1;
-    };
+    }
     if(cheats[CHEATS_SEEDS]) {
         gSaveContext.ammo[SLOT_SLINGSHOT] = 20 + 10 * ((gSaveContext.upgrades >> 14) & 0x7);
         if (gSaveContext.ammo[SLOT_SLINGSHOT] == 20) gSaveContext.ammo[SLOT_SLINGSHOT] = 1;
-    };
+    }
     if(cheats[CHEATS_BOMBCHUS]) {
         gSaveContext.ammo[SLOT_BOMBCHU] = 50;
-    };
+    }
     if(cheats[CHEATS_BEANS]) {
         gSaveContext.ammo[SLOT_BEAN] = 10;
-    };
+    }
     if(cheats[CHEATS_KEYS] && gGlobalContext->sceneNum >= 0x0000 && gGlobalContext->sceneNum <= 0x0010) {
         gSaveContext.dungeonKeys[gGlobalContext->sceneNum] = 1;
     }
@@ -120,21 +124,29 @@ void applyCheats() {
                 gSaveContext.rupees = 500;
                 break;
         }
-    };
+    }
     if(cheats[CHEATS_NAYRUS_LOVE]) {
         gSaveContext.nayrusLoveTimer = 1;
-    };
+    }
     if(cheats[CHEATS_FREEZE_TIME]) {
         gSaveContext.dayTime = frozenTime;
     }
-    //Loading a new area with these cheats active could crash. Checking isInGame() prevents that.
-    //Note that calling isInGame() while the game is loading (triforce icon) crashes.
-    //So don't enable the ISG cheat or forcedUsableItems there.
     if(cheats[CHEATS_ISG] && isInGame()) {
-        PLAYER->isg = 1;
-    };
+        PLAYER->meleeWeaponState = 1;
+    }
     if(forcedUsableItems && isInGame()) {
         Cheats_UsableItems();
+    }
+    if(cheats[CHEATS_SKIP_SONGS_PLAYBACK] && isInGame()) {
+        // msgModes 18 to 23 are used to manage the song replays. Skipping to mode 23 ends the replay.
+        // msgMode 18 starts the playback music. It can't be skipped for scarecrow's song (song "12") because it spawns Pierre.
+        if ((gGlobalContext->msgMode == 18 && gGlobalContext->lastPlayedSong != 12) ||
+                gGlobalContext->msgMode == 19) {
+            gGlobalContext->msgMode = 23;
+        }
+    }
+    if(cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH] && isInGame() && gSaveContext.cutsceneIndex == 0 && gSaveContext.gameMode == 1) {
+        gGlobalContext->csCtx.segment = 0;
     }
 }
 

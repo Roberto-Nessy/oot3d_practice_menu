@@ -20,10 +20,6 @@ SECTIONS
 		*(.patch_InstantTextRemoveOff)
 	}
 
-	/*.patch_load 0x2E3790 : {
-		*(.patch_load)
-	}*/
-
 	.patch_Gfx_Update 0x310254 : {
 		*(.patch_Gfx_Update)
 	}
@@ -50,6 +46,10 @@ SECTIONS
 
 	.patch_ItemUsability_Shield 0x42E2F0 : {
 		*(.patch_ItemUsability_Shield)
+	}
+
+	.patch_LoadGame 0x447380 : {
+		*(.patch_LoadGame)
 	}
 
 	.patch_OverrideSceneSetup 0x4487B8 : {

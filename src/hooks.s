@@ -8,24 +8,18 @@ hook_into_Gfx_Update:
     pop {r0-r12, lr}
     pop {r4-r8, pc}
 
+.global hook_before_GlobalContext_Update
+hook_before_GlobalContext_Update:
+    push {r0-r12, lr}
+    bl before_GlobalContext_Update
+    pop {r0-r12, lr}
+    cpy r7,r0
+    bx lr
 
-#.global hook_into_area_load
-#hook_into_area_load:
-#    push {r0-r12, lr}
-#    bl area_load_main
-#    pop {r0-r12, lr}
-#.if _USA_==1
-#    b 0x2E37D4
-#.endif
-#.if _JP_==1
-#    b 0x2E32EC
-#.endif
-
-.global gGlobalContext
 .global hook_after_GlobalContext_Update
 hook_after_GlobalContext_Update:
     push {r0-r12, lr}
-    bl setGlobalContext
+    bl after_GlobalContext_Update
     pop {r0-r12, lr}
 .if _JP_==1
     b 0x2E2108
@@ -229,4 +223,12 @@ hook_OverrideSceneSetup:
     bl Warps_OverrideSceneSetup
     pop {r0-r12, lr}
     mov r0,#0x2
+    bx lr
+
+.global hook_LoadGame
+hook_LoadGame:
+    add r0, r5, r4
+    push {r0-r12, lr}
+    bl Settings_LoadGame
+    pop {r0-r12, lr}
     bx lr

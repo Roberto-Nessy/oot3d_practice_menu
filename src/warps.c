@@ -3,6 +3,7 @@
 #include "draw.h"
 #include "input.h"
 #include "menus/commands.h"
+#include "menus/settings.h"
 #include "z3D/z3D.h"
 #include "z3D/entrances.h"
 #include <stdio.h>
@@ -12,26 +13,30 @@ static u8 sceneSetupOverrideActive = 0;
 Menu WarpsMenu = {
     "Warps",
     .nbItems = 4,
+    .initialCursorPos = 0,
     {
         {"Places", METHOD, .method = WarpsPlacesMenuShow},
         {"Manually Enter Entrance Index", METHOD, .method = ManuallyEnterEntranceIndex},
         {"Clear CS Pointer", METHOD, .method = ClearCutscenePointer},
-        {"Override Game Mode & Scene Setup", METHOD, .method = WarpsOverridesMenuShow},
+        {"Override Other Values", METHOD, .method = WarpsOverridesMenuShow},
     }
 };
 
 AmountMenu WarpsOverridesMenu = {
     "Warps Overrides",
-    .nbItems = 2,
+    .nbItems = 3,
+    .initialCursorPos = 0,
     {
         {0, 0,  6, "Game Mode", .method = Warps_OverrideGameMode},
         {0, 0, 14, "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
+        {0, 0,  3, "ZoneoutType/RespawnFlag - POSITIVE", .method = Warps_SetRespawnFlag},
     }
 };
 
 WarpsSceneMenu WarpsPlacesDungeonsMenu = {
     "Dungeons",
     .nbItems = 17,
+    .initialCursorPos = 0,
     {
         {"0: Inside the Deku Tree", &Entrances_InsideTheDekuTree},
         {"1: Dodongo's Cavern", &Entrances_DodongosCavern},
@@ -56,6 +61,7 @@ WarpsSceneMenu WarpsPlacesDungeonsMenu = {
 WarpsSceneMenu WarpsPlacesBossesMenu = {
     "Bosses",
     .nbItems = 10,
+    .initialCursorPos = 0,
     {
         {"17: Gohma", &Entrances_GohmasLair},
         {"18: King Dodongo", &Entrances_KingDodongosLair},
@@ -73,6 +79,7 @@ WarpsSceneMenu WarpsPlacesBossesMenu = {
 WarpsSceneMenu WarpsPlacesTownsMenu = {
     "Towns",
     .nbItems = 9,
+    .initialCursorPos = 0,
     {
         {"82: Kakariko Village", &Entrances_KakarikoVillage},
         {"85: Kokiri Forest", &Entrances_KokiriForest},
@@ -90,6 +97,7 @@ WarpsSceneMenu WarpsPlacesTownsMenu = {
 WarpsSceneMenu WarpsPlacesHousesMenu = {
     "Houses",
     .nbItems = 15,
+    .initialCursorPos = 0,
     {
         {"52: Link's House", &Entrances_LinksHouse},
         {"38: Know-It-All Brothers' House", &Entrances_KnowItAllBrothersHouse},
@@ -112,6 +120,7 @@ WarpsSceneMenu WarpsPlacesHousesMenu = {
 WarpsSceneMenu WarpsPlacesShopsMenu = {
     "Shops",
     .nbItems = 12,
+    .initialCursorPos = 0,
     {
         {"44: Bazaar", &Entrances_Bazaar},
         {"45: Kokiri Shop", &Entrances_KokiriShop},
@@ -131,6 +140,7 @@ WarpsSceneMenu WarpsPlacesShopsMenu = {
 WarpsSceneMenu WarpsPlacesMiscMenu = {
     "Misc",
     .nbItems = 14,
+    .initialCursorPos = 0,
     {
         {"67: Temple of Time", &Entrances_TempleOfTime},
         {"74: Zelda's Courtyard", &Entrances_CastleCourtyard},
@@ -152,6 +162,7 @@ WarpsSceneMenu WarpsPlacesMiscMenu = {
 WarpsSceneMenu WarpsPlacesOverworldMenu = {
     "Overworld",
     .nbItems = 15,
+    .initialCursorPos = 0,
     {
         {"81: Hyrule Field", &Entrances_HyruleField},
         {"91: Lost Woods", &Entrances_LostWoods},
@@ -185,7 +196,11 @@ const WarpsPlacesMenuEntry placesMenuEntries[] = {
 const s32 WarpsPlacesMenuSize = 7;
 
 void WarpsPlacesMenuShow(void){
-    s32 selected = 0;
+    static s32 selected = 0;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -251,8 +266,14 @@ void ClearCutscenePointer(void){
 
 void Warps_OverridesMenuInit(void){
     WarpsOverridesMenu.items[WARPS_GAME_MODE].amount = gSaveContext.gameMode;
-    if(!sceneSetupOverrideActive) {
-        WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount = gSaveContext.sceneSetupIndex;
+    WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount = gSaveContext.sceneSetupIndex;
+    if (gSaveContext.respawnFlag >= 0) {
+        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = gSaveContext.respawnFlag;
+        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - POSITIVE";
+    }
+    else {
+        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = -(gSaveContext.respawnFlag);
+        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - NEGATIVE";
     }
 }
 
@@ -279,5 +300,16 @@ void Warps_OverrideSceneSetupIndex(s32 selected) {
 void Warps_OverrideSceneSetup(void){
     if(sceneSetupOverrideActive) {
         gSaveContext.sceneSetupIndex = WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount;
+    }
+}
+
+void Warps_SetRespawnFlag(s32 selected) {
+    if (ADDITIONAL_FLAG_BUTTON) {
+        gSaveContext.respawnFlag = -(WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount);
+        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - NEGATIVE";
+    }
+    else {
+        gSaveContext.respawnFlag = WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount;
+        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - POSITIVE";
     }
 }

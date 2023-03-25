@@ -48,8 +48,16 @@ SECTIONS
 		*(.patch_ItemUsability_Shield)
 	}
 
+	.patch_LoadGame 0x4473A0 : {
+		*(.patch_LoadGame)
+	}
+
 	.patch_OverrideSceneSetup 0x4487D8 : {
 		*(.patch_OverrideSceneSetup)
+	}
+
+	.patch_before_GlobalContext_Update 0x4523B0 : {
+		*(.patch_before_GlobalContext_Update)
 	}
 
 	.patch_after_GlobalContext_Update 0x452454 : {

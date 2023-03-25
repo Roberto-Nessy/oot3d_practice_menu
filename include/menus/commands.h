@@ -5,8 +5,7 @@
 
 #define COMMAND_COMBO_MAX 4
 #define COMMAND_COMBO_TIMEOUT 3
-#define COMMAND_MENU_MAX_SHOW 18
-#define COMMAND_NUM_COMMANDS 17
+#define COMMAND_MENU_MAX_SHOW 17
 #define STORED_POS_COUNT 9
 
 typedef enum {
@@ -33,6 +32,8 @@ typedef enum {
     COMMAND_HITBOX_VIEW,
     COMMAND_TOGGLE_WATCHES,
     COMMAND_BREAK,
+    COMMAND_NOCLIP,
+    NUMBER_OF_COMMANDS,
 } commandNames;
 
 typedef enum {
@@ -52,10 +53,13 @@ typedef struct Command {
     u32 strict; //whether the button combo is strict or not
 } Command;
 
-void Commands_ShowCommands(void);
+extern Command commandList[NUMBER_OF_COMMANDS];
+
+void Commands_ShowCommandsMenu(void);
 void Command_UpdateCommands(u32 inputs);
 void Commands_ComboToString(char* buf, u32 commandIdx);
 
 extern u32 pauseUnpause;
 extern u32 frameAdvance;
 extern PosRot storedPosRot[STORED_POS_COUNT];
+extern u32 commandInit;

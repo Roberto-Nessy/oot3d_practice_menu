@@ -1,5 +1,7 @@
 #include "menu.h"
 #include "menus/watches.h"
+#include "menus/debug.h"
+#include "menus/settings.h"
 #include "draw.h"
 #include "input.h"
 #include "z3D/z3D.h"
@@ -132,7 +134,7 @@ static void WatchesDeleteWatch(u32 selected){
     memset(watches[selected].name, 0, WATCHES_MAXNAME + 1);
 }
 
-void Watches_ToggleWatches(void){
+/*void Watches_ToggleWatches(void){
     u8 display = watches[0].display;
 
     for (u32 i = 0; i < WATCHES_MAX; ++i){
@@ -140,11 +142,17 @@ void Watches_ToggleWatches(void){
             watches[i].display = !display;
         }
     }
-}
+}*/
 
 void WatchesMenuFunc(void){
 
-    s32 selected = 0;
+    static s32 selected = 0;
+    s32 toDelete = -1;
+    s32 toSwap   = -1;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -157,11 +165,16 @@ void WatchesMenuFunc(void){
         Draw_DrawString(10, 10, COLOR_TITLE, "Watches");
 
         for (u32 i = 0; i < WATCHES_MAX; ++i){
-            Draw_DrawString(30, 30 + i * SPACING_Y, COLOR_WHITE, watches[i].addr == NULL ? "." : watches[i].name);
+            u32 color = (i == toDelete ? COLOR_RED : (i == toSwap ? COLOR_GREEN : COLOR_WHITE));
+            Draw_DrawString(30, 30 + i * SPACING_Y, color, watches[i].addr == NULL ? "." : watches[i].name);
             Draw_DrawCharacter(10, 30 + i * SPACING_Y, COLOR_TITLE, selected == i ? '>' : ' ');
+            if (watches[i].addr != NULL) {
+                Draw_DrawFormattedString(90, 30 + i * SPACING_Y, color, "%08X", watches[i].addr);
+                Draw_DrawFormattedString(150, 30 + i * SPACING_Y, color, watches[i].display ? "ON" : "OFF");
+            }
         }
 
-        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "A to edit. X to delete.");
+        Draw_DrawString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "A: Edit  X: Delete  Y: Go to Memory Editor  R: Swap");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -176,11 +189,46 @@ void WatchesMenuFunc(void){
             Draw_Unlock();
         }
         else if(pressed & BUTTON_X){
-            WatchesDeleteWatch(selected);
+            toSwap = -1;
+            if (toDelete == selected) {
+                WatchesDeleteWatch(selected);
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_FlushFramebuffer();
+                Draw_Unlock();
+                toDelete = -1;
+            }
+            else {
+                toDelete = selected;
+            }
+        }
+        else if(pressed & BUTTON_Y){
+            pushHistory(memoryEditorAddress);
+            memoryEditorAddress = (int)watches[selected].addr;
+            Debug_MemoryEditor();
             Draw_Lock();
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();
             Draw_Unlock();
+        }
+        else if(pressed & BUTTON_R1){
+            toDelete = -1;
+            if (toSwap == selected){
+                toSwap = -1;
+            }
+            else if (toSwap >= 0) {
+                Watch tempWatch = watches[toSwap];
+                watches[toSwap] = watches[selected];
+                watches[selected] = tempWatch;
+                Draw_Lock();
+                Draw_ClearFramebuffer();
+                Draw_FlushFramebuffer();
+                Draw_Unlock();
+                toSwap = -1;
+            }
+            else {
+                toSwap = selected;
+            }
         }
         else if(pressed & BUTTON_UP){
             selected--;

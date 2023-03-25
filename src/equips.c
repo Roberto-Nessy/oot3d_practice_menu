@@ -75,6 +75,7 @@ void Equips_ModifyGear(s32 selected){
 AmountMenu EquipsMenu = {
     "Equips",
     .nbItems = 14,
+    .initialCursorPos = 0,
     {
         {0, 0, 255, "B button item", .method = Equips_ModifyButton},
         {0, 0, 255, "Y button item", .method = Equips_ModifyButton},

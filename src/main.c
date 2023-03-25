@@ -11,20 +11,38 @@
 #include "menus/watches.h"
 #include "menus/commands.h"
 #include "menus/scene.h"
+#include "menus/settings.h"
+#include "3ds/extdata.h"
 #include <string.h>
 
 #include "z3D/z3D.h"
+#include "actor.h"
 
 #define NOCLIP_SLOW_SPEED 4
 #define NOCLIP_FAST_SPEED 20
 
 advance_ctx_t advance_ctx = {};
-uint8_t framebuffers_init = 0;
+uint8_t practice_menu_init = 0;
 static bool isAsleep = false;
 u32 alertFrames = 0;
 char* alertMessage = "";
 
 GlobalContext* gGlobalContext;
+u8 gInit = 0;
+
+void setGlobalContext(GlobalContext* globalContext) {
+    gGlobalContext = globalContext;
+}
+
+void before_GlobalContext_Update(GlobalContext* globalCtx) {
+    if (!gInit) {
+        setGlobalContext(globalCtx);
+        Actor_Init();
+        gInit = 1;
+    }
+}
+
+void after_GlobalContext_Update(GlobalContext* globalCtx) {}
 
 static void toggle_advance(void) {
     if(pauseUnpause && advance_ctx.advance_state == NORMAL && !advance_ctx.latched){
@@ -122,6 +140,9 @@ static void drawWatches(void) {
 }
 
 void drawAlert() {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
+        alertFrames = 0;
+
     if (alertFrames > 0) {
         Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, alertMessage);
         Draw_FlushFramebufferTop();
@@ -140,21 +161,28 @@ static void titleScreenDisplay(void){
 }
 
 void pauseDisplay(void) {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
+        return;
+
     Draw_DrawFormattedStringTop(20, 20, COLOR_WHITE, "Paused");
     Draw_FlushFramebufferTop();
 }
 
 void advance_main(void) {
-    if(framebuffers_init == 0){
+    if(practice_menu_init == 0){
         Draw_SetupFramebuffer();
-        framebuffers_init = 1;
+        extDataInit();
+        Settings_LoadExtSaveData();
+        practice_menu_init = 1;
     }
 
     if(gSaveContext.entranceIndex == 0x0629 && gSaveContext.cutsceneIndex == 0xFFF3 && gSaveContext.gameMode != 2){
         titleScreenDisplay();
     }
 
-    drawWatches();
+    if(shouldDrawWatches){
+        drawWatches();
+    }
     drawAlert();
     Input_Update();
     Command_UpdateCommands(rInputCtx.cur.val);
@@ -205,10 +233,11 @@ void advance_main(void) {
         pauseUnpause = 0;
         frameAdvance = 0;
         svcSleepThread(16E6);
+        rInputCtx.cur.val = 0;
     }
     isAsleep = false;
 
-    if(noClip) { // TODO manage camera, redirect inputs accordingly or change the camera angle.
+    if(noClip && releasedABbuttons) { // TODO manage camera, redirect inputs accordingly or change the camera angle.
         u32 in = rInputCtx.cur.val;
         f32 amount = (in & BUTTON_R1) ? NOCLIP_FAST_SPEED : NOCLIP_SLOW_SPEED;
         if(in & BUTTON_L1) {
@@ -250,16 +279,12 @@ void advance_main(void) {
             Scene_NoClipToggle();
         }
     }
-}
-
-void setGlobalContext(GlobalContext* globalContext){
-    gGlobalContext = globalContext;
+    else {
+        releasedABbuttons = !(rInputCtx.cur.val & (BUTTON_A | BUTTON_B));
+    }
 }
 
 void Gfx_SleepQueryCallback(void) {
     menuOpen = false;
     isAsleep = true;
 }
-
-void area_load_main(void){}
-int main(void){}

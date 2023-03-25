@@ -29,34 +29,34 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	src
+SOURCES		:=	$(sort $(dir $(wildcard src/*/ src/)))
 DATA		:=	data
-INCLUDES	:=	include
+INCLUDES	:=	include $(SOURCES)
 INCLUDES    +=  assets
 #ROMFS		:=	romfs
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-OOT3DU 		:= OOT3DU
-OOT3DJ 		:= OOT3DJ
-OOT3DE 		:= OOT3DE
-Z3D			:= OOT3DU
+USA         := USA
+EUR         := EUR
+JP          := JP
+REGION      := USA
 
-ifeq ($(OOT3DU), $(Z3D))
+ifeq ($(USA), $(REGION))
   LINK_SCRIPT 	:= oot.ld
   ASFLAGS += -D _USA_=1 -D _JP_=0 -D _EUR_=0
 endif
-ifeq ($(OOT3DJ), $(Z3D))
+ifeq ($(JP), $(REGION))
   LINK_SCRIPT 	:= oot_j.ld
   ASFLAGS += -D _USA_=0 -D _JP_=1 -D _EUR_=0
 endif
-ifeq ($(OOT3DE), $(Z3D))
+ifeq ($(EUR), $(REGION))
   LINK_SCRIPT 	:= oot_e.ld
   ASFLAGS += -D _USA_=0 -D _JP_=0 -D _EUR_=1
 endif
 
-VERFLAGS := -D OOT3DU=$(OOT3DU) -D OOT3DJ=$(OOT3DJ) -D OOT3DE=$(OOT3DE) -D Z3D=$(Z3D)
+VERFLAGS := -D USA=$(USA) -D JP=$(JP) -D EUR=$(EUR) -D REGION=$(REGION)
 
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=softfp -mtp=soft -mfpu=vfpv2
 
@@ -74,13 +74,13 @@ LDFLAGS	=	-g $(ARCH) -Wl,-Map,$(notdir $*.map) -T $(TOPDIR)/$(LINK_SCRIPT) -nost
 LIBS	:=	-lgcc
 
 # Define version for the C code
-ifeq ($(Z3D), $(OOT3DU))
+ifeq ($(REGION), $(USA))
 	CFLAGS += -g -DVersion_USA
 endif
-ifeq ($(Z3D), $(OOT3DJ))
+ifeq ($(REGION), $(JP))
 	CFLAGS += -g -DVersion_JP
 endif
-ifeq ($(Z3D), $(OOT3DE))
+ifeq ($(REGION), $(EUR))
 	CFLAGS += -g -DVersion_EUR
 endif
 
@@ -164,11 +164,8 @@ all: $(BUILD)
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@if python3 patch.py $(OUTPUT).elf; then \
-		echo "created basecode.ips" ; \
-	else \
+	@if ! python3 patch.py $(OUTPUT).elf; then \
 		python patch.py $(OUTPUT).elf; \
-		echo "created basecode.ips" ; \
 	fi
 
 #---------------------------------------------------------------------------------
@@ -186,7 +183,7 @@ DEPENDS	:=	$(OFILES:.o=.d)
 # main targets
 #---------------------------------------------------------------------------------
 
-$(OUTPUT).elf	:	$(OFILES)
+$(OUTPUT).elf	:	$(OFILES) $(TOPDIR)/$(LINK_SCRIPT)
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data

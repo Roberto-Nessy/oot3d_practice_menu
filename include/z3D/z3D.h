@@ -169,7 +169,8 @@ typedef struct {
     /* 0x1575 */ u8           ocarinaButtonStatus;
     /* 0x1576 */ char         unk_1576[0x000D];
     /* 0x1584 */ u16          magicMeterSize;
-    /* 0x1586 */ char         unk_1586[0x000C];
+    /* 0x1586 */ char         unk_1586[0x0004];
+    /* 0x158A */ u16          eventInf[4];
     /* 0x1592 */ u16          dungeonIndex;
     /* 0x1594 */ char         unk_1594[0x000C];
     /* 0x15A0 */ u16          nextCutsceneIndex;
@@ -178,59 +179,6 @@ typedef struct {
     /* 0x15AB */ u8           nextTransition;
     /* 0x15AC */ char         unk_15AC[0x006];
     /* 0x15B2 */ s16          healthAccumulator;
-
-//stuff below is from z64.h
-/* skipped over */
-    // /* 0x0022 */ s16          deaths;
-    // /* 0x002C */ s16          n64ddFlag;
-    // /* 0x0072 */ char         unk_72[0x0002];
-    // /* 0x00CF */ s8           defenseHearts;
-    // /* 0x0F3C */ char         unk_F3C[0x040C];
-    // /* 0x13BC */ char         unk_13BC[0x0008];
-    // /* 0x13C4 */ s16          dogParams;
-    // /* 0x13C6 */ char         unk_13C6[0x0001];
-    // /* 0x13C7 */ u8           unk_13C7;
-
-/* still to compare */
-    // /* 0x13CA */ char         unk_13CA[0x0002];
-
-    // /* 0x13DE */ char         unk_13DE[0x0002];
-    // /* 0x13E0 */ u8           seqIndex;
-    // /* 0x13E1 */ u8           nightSeqIndex;
-    // /* 0x13E2 */ u8           buttonStatus[5];
-    // /* 0x13E7 */ u8           unk_13E7;
-    // /* 0x13E8 */ u16          unk_13E8; // alpha type?
-    // /* 0x13EA */ u16          unk_13EA; // also alpha type?
-    // /* 0x13EC */ u16          unk_13EC; // alpha type counter?
-    // /* 0x13EE */ u16          unk_13EE; // previous alpha type?
-    // /* 0x13F0 */ s16          unk_13F0;
-    // /* 0x13F2 */ s16          unk_13F2;
-    // /* 0x13F4 */ s16          unk_13F4;
-    // /* 0x13F6 */ s16          unk_13F6;
-    // /* 0x13F8 */ s16          unk_13F8;
-    // /* 0x13FA */ u16          eventInf[4]; // "event_inf"
-    // /* 0x1404 */ u16          minigameState;
-    // /* 0x1406 */ u16          minigameScore; // "yabusame_total"
-    // /* 0x1408 */ char         unk_1408[0x0001];
-    // /* 0x1409 */ u8           language;
-    // /* 0x140A */ u8           audioSetting;
-    // /* 0x140B */ char         unk_140B[0x0001];
-    // /* 0x140C */ u8           zTargetingSetting; // 0: Switch; 1: Hold
-    // /* 0x140E */ u16          unk_140E; // bgm related
-    // /* 0x1410 */ u8           unk_1410;
-    // /* 0x1411 */ u8           unk_1411;
-    // /* 0x1412 */ u16          nextCutsceneIndex;
-    // /* 0x1414 */ u8           cutsceneTrigger;
-    // /* 0x1415 */ u8           chamberCutsceneNum;
-    // /* 0x1416 */ u16          nextDayTime; // "next_zelda_time"
-    // /* 0x1418 */ u8           fadeDuration;
-    // /* 0x1419 */ u8           unk_1419; // transition related
-    // /* 0x141A */ u16          environmentTime;
-    // /* 0x141C */ u8           dogIsLost;
-    // /* 0x141D */ u8           nextTransition;
-    // /* 0x141E */ char         unk_141E[0x0002];
-    // /* 0x1420 */ s16          worldMapArea;
-    // /* 0x1422 */ s16          unk_1422; // day time related
 } SaveContext; // size = 0x15C4
 
 typedef struct GraphicsContext GraphicsContext; //TODO
@@ -401,7 +349,9 @@ typedef struct GlobalContext {
     // /* 0x0000 */ GameState state;
     /* 0x0000 */ char                  unk_0[0x0104];
     /* 0x0104 */ s16                   sceneNum;
-    /* 0x0106 */ char                  unk_106[0x0012];
+    /* 0x0106 */ char                  unk_106[0x000A];
+    /* 0x0110 */ void*                 sceneSegment;
+    /* 0x0114 */ char                  unk_114[0x0004];
     /* 0x0118 */ SubGlobalContext_118  sub118;
     /* 0x017C */ char                  unk_17C[0x01E8];
     /* 0x0364 */ Camera                mainCamera;
@@ -415,7 +365,8 @@ typedef struct GlobalContext {
     /* 0x2298 */ CutsceneContext       csCtx; // "demo_play"
     /* 0x2304 */ char                  unk_2304[0x078C];
     /* 0x2A90 */ u8                    msgMode; //seems to be used primarily for the ocarina
-    /* 0x2A91 */ char                  unk_2A91[0xED];
+    /* 0x2A91 */ char                  unk_2A91[0xEB];
+    /* 0x2B7C */ u16                   lastPlayedSong;
     /* 0x2B7E */ s16                   unk_2B7E; // msgCtx.unk_E3EE in OoT
     /* 0x2B80 */ char                  unk_2B80[0x06B0];
     /* 0x3230 */ u32                   lightSettingsList_addr;
@@ -484,6 +435,7 @@ extern const char DungeonNames[][25];
 #define gObjectTable ((ObjectFile*)0x53CCF4)
 #define gEntranceTable ((EntranceInfo*)0x543BB8)
 #define gItemUsabilityTable ((u8*)0x506C58)
+#define gGearUsabilityTable ((u32*)0x4D47C8)
 #define gDungeonSceneTable ((Scene*)0x4DC400)
 #define gMQDungeonSceneTable ((Scene*)0x4DCBA8)
 #define gSceneTable ((Scene*)0x545484)
@@ -529,24 +481,36 @@ typedef enum {
 
 typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalCtx,s16 actorId,float posX,float posY,float posZ,s16 rotX,s16 rotY,s16 rotZ,s16 params)
     __attribute__((pcs("aapcs-vfp")));;
-
 #ifdef Version_JP
     #define Actor_Spawn_addr 0x3733E8
 #else //USA & EUR
     #define Actor_Spawn_addr 0x3738D0
 #endif
-
 #define Actor_Spawn ((Actor_Spawn_proc)Actor_Spawn_addr)
 
-typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* player);
+typedef s32 (*Object_proc)(ObjectContext* objectCtx, s16 objectId);
+#ifdef Version_JP
+    #define Object_Spawn_addr 0x32DD34
+#else //USA & EUR
+    #define Object_Spawn_addr 0x32E21C
+#endif
+#define Object_Spawn ((Object_proc)Object_Spawn_addr)
 
+typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* player);
 #ifdef Version_JP
     #define Player_SetEquipmentData_addr 0x348C54
 #else //USA & EUR
     #define Player_SetEquipmentData_addr 0x34913C
 #endif
-
 #define Player_SetEquipmentData ((Player_SetEquipmentData_proc)Player_SetEquipmentData_addr)
+
+typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
+#ifdef Version_JP
+    #define Flags_SetEnv_addr 0x36621C
+#else //USA & EUR
+    #define Flags_SetEnv_addr 0x366704
+#endif
+#define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

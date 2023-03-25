@@ -5,10 +5,10 @@
 Gfx_Update_patch:
     b hook_into_Gfx_Update
 
-#.section .patch_load
-#.global load_patch
-#load_patch:
-#    b hook_into_area_load
+.section .patch_before_GlobalContext_Update
+.global before_GlobalContext_Update_patch
+before_GlobalContext_Update_patch:
+    bl hook_before_GlobalContext_Update
 
 .section .patch_after_GlobalContext_Update
 .global after_GlobalContext_Update_patch
@@ -89,3 +89,8 @@ SleepQueryCallback_patch:
 .global OverrideSceneSetup_patch
 OverrideSceneSetup_patch:
     bl hook_OverrideSceneSetup
+
+.section .patch_LoadGame
+.global .LoadGame_patch
+LoadGame_patch:
+    bl hook_LoadGame

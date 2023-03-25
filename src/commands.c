@@ -3,6 +3,7 @@
 #include "menus/warps.h"
 #include "menus/watches.h"
 #include "menus/scene.h"
+#include "menus/settings.h"
 #include "input.h"
 #include "common.h"
 #include "z3D/z3D.h"
@@ -12,6 +13,7 @@
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
 bool menuOpen = 0;    //tells main to open menu
+bool shouldDrawWatches = 1;
 
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;
@@ -43,6 +45,9 @@ static void Command_Break(void){
 
         PLAYER->stateFlags1 = 0x0;
         PLAYER->stateFlags2 = 0x0;
+        if (gGlobalContext->nextEntranceIndex != 0xFFFF && gGlobalContext->sceneLoadFlag == 0x14) {
+            gGlobalContext->sceneLoadFlag = 0xEC; //hacky solution to avoid softlocks when warping during fade-in
+        }
         alertMessage = "Break";
         alertFrames = 20;
     }
@@ -101,7 +106,7 @@ static void Command_StorePos(void){
         storedPosRot[storedPosIndex].rot = PLAYER->actor.world.rot;
 
         alertMessage = "Stored position X";
-        alertMessage[16] = storedPosIndex + 48; //ASCII digit
+        alertMessage[16] = storedPosIndex + '0';
         alertFrames = menuOpen ? 10 : 90;
     }
 }
@@ -115,14 +120,14 @@ static void Command_LoadPos(void){
         PLAYER->actor.shape.rot = storedPosRot[storedPosIndex].rot;
 
         alertMessage = "Loaded position X";
-        alertMessage[16] = storedPosIndex + 48; //ASCII digit
+        alertMessage[16] = storedPosIndex + '0';
         alertFrames = menuOpen ? 10 : 90;
     }
 }
 
 static void AlertPosIndex(void) {
     alertMessage = "Position X";
-    alertMessage[9] = storedPosIndex + 48; //ASCII digit
+    alertMessage[9] = storedPosIndex + '0';
     alertFrames = menuOpen ? 10 : 75;
 }
 
@@ -157,10 +162,10 @@ static void Command_HitboxView(void){
 }
 
 static void Command_ToggleWatches(void){
-    Watches_ToggleWatches();
+    shouldDrawWatches = !shouldDrawWatches;
 }
 
-static Command commandList[] = {
+Command commandList[NUMBER_OF_COMMANDS] = {
     {"Open Menu", 0, 0, { 0 }, Command_OpenMenu, COMMAND_PRESS_ONCE_TYPE, 0, 0},
     {"Levitate", 0, 0, { 0 }, Command_Levitate, COMMAND_HOLD_TYPE, 0, 0},
     {"Fall", 0, 0, { 0 }, Command_Fall, COMMAND_HOLD_TYPE, 0, 0},
@@ -178,6 +183,7 @@ static Command commandList[] = {
     {"Toggle Hitbox View", 0, 0, { 0 }, Command_HitboxView, COMMAND_PRESS_TYPE, 0, 0},
     {"Toggle Watches", 0, 0, { 0 }, Command_ToggleWatches, COMMAND_PRESS_TYPE, 0, 0},
     {"Break Free", 0, 0, { 0 }, Command_Break, COMMAND_HOLD_TYPE, 0, 0},
+    {"NoClip", 0, 0, { 0 }, Scene_NoClipToggle, COMMAND_PRESS_ONCE_TYPE, 0, 0},
 };
 
 static void Commands_ListInitDefaults(void){
@@ -243,7 +249,7 @@ static void Commands_ListInitDefaults(void){
     commandList[COMMAND_BREAK].strict = 0;
 
     // reset the other commands for when default settings are restored
-    for(u32 i = 0; i < COMMAND_NUM_COMMANDS; ++i){
+    for(u32 i = 0; i < NUMBER_OF_COMMANDS; ++i){
         if ((i > COMMAND_RUN_FAST) && i != COMMAND_VOID_OUT &&
             (i < COMMAND_STORE_POS || i > COMMAND_FRAME_ADVANCE) && i != COMMAND_BREAK){
             commandList[i].comboLen = 0;
@@ -252,7 +258,7 @@ static void Commands_ListInitDefaults(void){
     }
 }
 
-static u32 commandInit = 0;
+u32 commandInit = 0;
 void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held and pressed buttons
     if (!commandInit){
         Commands_ListInitDefaults();
@@ -267,7 +273,7 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
         commandList[COMMAND_OPEN_MENU].strict = 0;
     }
 
-    for (int i = 0; i < COMMAND_NUM_COMMANDS; i++){
+    for (int i = 0; i < NUMBER_OF_COMMANDS; i++){
         if (commandList[i].comboLen == 0) continue;
         if ((commandList[i].strict && curInputs == commandList[i].inputs[commandList[i].curIdx]) ||
             (!commandList[i].strict && (curInputs & commandList[i].inputs[commandList[i].curIdx]) == commandList[i].inputs[commandList[i].curIdx])){ //case where we hit the new button
@@ -469,8 +475,12 @@ static void Commands_EditCommand(u32 commandIndex){
     Draw_ClearFramebuffer();
 }
 
-void Commands_ShowCommands(void){
-    s32 selected = 0, page = 0, pagePrev = 0;
+void Commands_ShowCommandsMenu(void){
+    static s32 selected = 0, page = 0, pagePrev = 0;
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+        selected = 0, page = 0, pagePrev = 0;
+    }
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -486,7 +496,7 @@ void Commands_ShowCommands(void){
         }
         Draw_DrawFormattedString(10, 10, COLOR_TITLE, "Commands. Press START to restore defaults");
 
-        for (s32 i = 0; i < COMMAND_MENU_MAX_SHOW && page * COMMAND_MENU_MAX_SHOW + i < COMMAND_NUM_COMMANDS; ++i)
+        for (s32 i = 0; i < COMMAND_MENU_MAX_SHOW && page * COMMAND_MENU_MAX_SHOW + i < NUMBER_OF_COMMANDS; ++i)
         {
             char comboString[COMMAND_COMBO_MAX + 1];
             s32 j = page * COMMAND_MENU_MAX_SHOW + i;
@@ -540,11 +550,11 @@ void Commands_ShowCommands(void){
             selected -= COMMAND_MENU_MAX_SHOW;
         }
         else if(pressed & BUTTON_RIGHT){
-            if(selected + COMMAND_MENU_MAX_SHOW < COMMAND_NUM_COMMANDS)
+            if(selected + COMMAND_MENU_MAX_SHOW < NUMBER_OF_COMMANDS)
                 selected += COMMAND_MENU_MAX_SHOW;
-            else if((COMMAND_NUM_COMMANDS - 1) / COMMAND_MENU_MAX_SHOW == page)
+            else if((NUMBER_OF_COMMANDS - 1) / COMMAND_MENU_MAX_SHOW == page)
                 selected %= COMMAND_MENU_MAX_SHOW;
-            else selected = COMMAND_NUM_COMMANDS - 1;
+            else selected = NUMBER_OF_COMMANDS - 1;
         }
         else if(pressed & BUTTON_START)
         {
@@ -552,8 +562,8 @@ void Commands_ShowCommands(void){
         }
 
         if(selected < 0)
-            selected = COMMAND_NUM_COMMANDS - 1;
-        else if(selected >= COMMAND_NUM_COMMANDS) selected = 0;
+            selected = NUMBER_OF_COMMANDS - 1;
+        else if(selected >= NUMBER_OF_COMMANDS) selected = 0;
 
         pagePrev = page;
         page = selected / COMMAND_MENU_MAX_SHOW;

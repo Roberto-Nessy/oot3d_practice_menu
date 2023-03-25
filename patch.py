@@ -23,7 +23,7 @@ with open(elf, 'rb') as e:
         e.seek(offset, 0)
         while size > 65535:
             patch = e.read(65535)
-            print('{:0x}'.format(vaddr))
+            # print('{:0x}'.format(vaddr))
             ips += off(vaddr)
             ips += sz(65535)
             ips += patch
@@ -33,7 +33,7 @@ with open(elf, 'rb') as e:
 
         patch =  e.read(size)
         if len(patch) != 0:
-            print('{:0x}'.format(vaddr))
+            # print('{:0x}'.format(vaddr))
             ips += off(vaddr)
             ips += sz(size)
             ips += patch
@@ -41,4 +41,4 @@ ips += b'EOF'
 
 with open("code.ips", 'wb') as patchFile:
     patchFile.write(ips)
-print("created ips")
+    print("created basecode.ips\n")
