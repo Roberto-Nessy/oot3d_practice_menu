@@ -195,7 +195,7 @@ void Scene_FreeCamDescription(void) {
                                         "L+Circle Pad - Rotate in place\n"
                                         "C Stick      - Rotate while moving\n"
                                         "DPad Up/Down - Move vertically\n"
-                                        "Hold R       - Move fast\n"
+                                        "Hold R       - Precise movement\n"
                                         "B            - Quit");
     Draw_FlushFramebuffer();
     Draw_Unlock();

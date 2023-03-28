@@ -311,8 +311,8 @@ void advance_main(void) {
     else if(freeCam && releasedABbuttons) {
         u32 in = rInputCtx.cur.val;
         circlePosition cStick = rInputCtx.cStick;
-        f32 posMult = (in & BUTTON_R1) ? 0.4 : 0.08;
-        u16 rotMult = (in & BUTTON_R1) ? 5 : 2;
+        f32 posMult = (in & BUTTON_R1) ? 0.08 : 0.4;
+        u16 rotMult = (in & BUTTON_R1) ? 2 : 5;
 
         if(in & BUTTON_L1 && cStick.dx * cStick.dx + cStick.dy * cStick.dy <= 100) {
             if(ControlStick_X * ControlStick_X + ControlStick_Y * ControlStick_Y > 100) {

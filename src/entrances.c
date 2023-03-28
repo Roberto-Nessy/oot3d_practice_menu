@@ -50,11 +50,11 @@ void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chose
 
     gGlobalContext->sceneLoadFlag = 0x14;
 
-    if(noClip) {
-        Scene_NoClipToggle();
-    }
     if(freeCam) {
         Scene_FreeCamToggle();
+    }
+    if(noClip) {
+        Scene_NoClipToggle();
     }
 }
 
